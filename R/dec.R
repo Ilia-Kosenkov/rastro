@@ -1,3 +1,4 @@
+# CTOR
 new_dec <- function(deg = integer(), min = integer(), sec = double()) {
     deg <- vec_cast(deg, integer())
     min <- vec_cast(min, integer())
@@ -14,27 +15,11 @@ new_dec <- function(deg = integer(), min = integer(), sec = double()) {
     vec_recycle_common(
         deg = deg %0% 0L,
         min = min %0% 0L,
-        sec = sec %0% 0.0) %->% c(deg, min, sec)
+        sec = sec %0% 0.0) -> tmp
+    tmp %->% c(deg, min, sec)
 
     adjust_dec(deg, min, sec) -> fields
-
-
     new_rcrd(fields, class = "rastro_dec")
-}
-
-adjust_dec <- function(deg, min, sec) {
-    val <- deg + min / 60 + sec / 3600
-    val <- val %% 360
-    val[val >= 180] <- val - 360
-
-    sign <- sign(val)
-    val <- abs(val)
-    deg <- as.integer(val)
-    val <- abs(60 * (val - deg))
-    min <- as.integer(val)
-    sec <- abs(60 * (val - min))
-
-    return(list(sign = sign, deg = deg, min = min, sec = sec))
 }
 
 new_dec_from_degr <- function(deg) {
@@ -45,6 +30,49 @@ new_dec_from_degr <- function(deg) {
     adjust_dec(deg, min, sec) -> fields
 
     new_rcrd(fields, class = "rastro_dec")
+}
+
+adjust_dec <- function(deg, min, sec) {
+    # !!! lost precision
+    val <- deg + min / 60 + sec / 3600
+    val <- val %% 360
+    val[val >= 180] <- val[val >= 180] - 360
+
+    sign <- vec_cast(sign(val), integer())
+    val <- abs(val)
+    deg <- as.integer(val)
+    val <- abs(60 * (val - deg))
+    min <- as.integer(val)
+    sec <- abs(60 * (val - min))
+
+    return(list(sign = sign, deg = deg, min = min, sec = sec))
+}
+
+adjust_dec <- function(deg, min, sec) {
+    # !!! lost precision
+    min <- min + vec_cast(sec %/% 60, integer())
+    sec <- sec %% 60
+
+    deg <- deg + min %/% 60L
+    min <- min %% 60L
+
+    deg <- deg %% 360L
+    neg <- deg >= 180L
+
+    nz_sec <- sec[neg] %!=% 0
+    min[neg[nz_sec]] <- min[neg[nz_sec]] + 1L
+    sec[neg[nz_sec]] <- 60 - sec[neg[nz_sec]]
+
+    nz_min <- min[neg] != 0L
+    deg[neg[nz_min]] <- deg[neg[nz_min]] + 1L
+    min[neg[nz_min]] <- 60L - min[neg[nz_min]]
+
+    nz_deg <- deg[neg] != 0L
+    deg[nz_deg] <- 360L - deg[nz_deg]
+
+    sign <- ifelse(neg, -1L, 1L)
+
+    return(list(sign = sign, deg = deg, min = min, sec = sec))
 }
 
 dec_2_deg <- function(x) {
@@ -58,6 +86,7 @@ dec_2_deg <- function(x) {
 }
 
 
+# FORMAT
 format.rastro_dec <- function(
         x,
         format = "{sign:%1s}{deg:%02d}:{min:%02d}:{sec:%06.3f}", ...) {
@@ -75,11 +104,12 @@ format.rastro_dec <- function(
     glue_fmt_chr(format)
 }
 
-format.vctrs_rcrd <- function(x, ...) format.rastro_dec(x)
 
+# METADATA
 vec_ptype_abbr.rastro_dec <- function(x, ...) "dec"
 vec_ptype_full.rastro_dec <- function(x, ...) "rastro_dec"
 
+# PTYPE
 vec_ptype2.rastro_dec <- function(x, y, ...) UseMethod("vec_ptype2.rastro_dec", y)
 vec_ptype2.rastro_dec.default <- function(x, y, ..., x_arg = "x", y_arg = "y")
         vec_default_ptype2(x, y, x_arg = x_arg, y_arg = y_arg)
@@ -89,10 +119,34 @@ vec_ptype2.rastro_dec.integer <- function(x, y, ...) new_dec()
 vec_ptype2.integer.rastro_dec <- function(x, y, ...) new_dec()
 vec_ptype2.double.rastro_dec <- function(x, y, ...) new_dec()
 
+is_rastro_dec <- function(x, ...) vec_is(x, new_dec())
 
+# CAST
 vec_cast.rastro_dec <- function(x, to, ...) UseMethod("vec_cast.rastro_dec")
 vec_cast.rastro_dec.default <- function(x, to, ...) vec_default_cast(x, to)
 vec_cast.rastro_dec.rastro_dec <- function(x, to, ...) x
 vec_cast.rastro_dec.integer <- function(x, to, ...) new_dec_from_degr(x)
 vec_cast.rastro_dec.double <- function(x, to, ...) new_dec_from_degr(x)
 vec_cast.double.rastro_dec <- function(x, to, ...) dec_2_deg(x)
+
+as_rastro_dec <- function(x, ...) vec_cast(x, new_dec())
+
+# EQUALITY
+`%==%.rastro_dec` <- function(x, y) UseMethod("%==%.rastro_dec", y)
+`%==%.rastro_dec.default` <- function(x, y) vec_equal(x, y)
+`%==%.rastro_dec.rastro_dec` <- function(x, y) {
+    proxy_x <- vec_proxy_equal(x)
+    proxy_y <- vec_proxy_equal(y)
+
+    (proxy_x$sign == proxy_y$sign) &
+        (proxy_x$deg == proxy_y$deg) &
+        (proxy_x$min == proxy_y$min) &
+        (are_equal_f(proxy_x$sec, proxy_y$sec))
+}
+
+vec_proxy_compare.rastro_dec <- function(x, ...) {
+    sign <- field(x, "sign")
+    data.frame(
+        min = sign * (field(x, "deg") * 60L + field(x, "min")),
+        sec = sign * field(x, "sec"))
+}
