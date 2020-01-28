@@ -15,4 +15,8 @@ LazyData: true
 ByteCompile: true
 Imports:
 	rlang,
-	vctrs
+	vctrs,
+	primitiveR
+Suggests:
+	magrittr,
+	testthat
