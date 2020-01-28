@@ -18,7 +18,7 @@ new_dec <- function(deg = integer(), min = integer(), sec = double()) {
         sec = sec %0% 0.0) -> tmp
     tmp %->% c(deg, min, sec)
 
-    adjust_dec(deg, min, sec) -> fields
+    normalize_dec(deg, min, sec) -> fields
     new_rcrd(fields, class = "rastro_dec")
 }
 
@@ -27,29 +27,12 @@ new_dec_from_degr <- function(deg) {
 
     vec_recycle_common(deg, 0.0, 0.0) %->% c(deg, min, sec)
 
-    adjust_dec(deg, min, sec) -> fields
+    normalize_dec(deg, min, sec) -> fields
 
     new_rcrd(fields, class = "rastro_dec")
 }
 
-adjust_dec <- function(deg, min, sec) {
-    # !!! lost precision
-    val <- deg + min / 60 + sec / 3600
-    val <- val %% 360
-    val[val >= 180] <- val[val >= 180] - 360
-
-    sign <- vec_cast(sign(val), integer())
-    val <- abs(val)
-    deg <- as.integer(val)
-    val <- abs(60 * (val - deg))
-    min <- as.integer(val)
-    sec <- abs(60 * (val - min))
-
-    return(list(sign = sign, deg = deg, min = min, sec = sec))
-}
-
-adjust_dec <- function(deg, min, sec) {
-    # !!! lost precision
+normalize_dec <- function(deg, min, sec) {
     min <- min + vec_cast(sec %/% 60, integer())
     sec <- sec %% 60
 
