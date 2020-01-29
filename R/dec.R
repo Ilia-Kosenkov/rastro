@@ -29,12 +29,12 @@ new_dec_from_degr <- function(deg) {
     i_deg <- vec_cast(round(deg), integer())
     sec <- 3600 * vec_cast(deg - i_deg, double())
     vec_recycle_common(i_deg, 0L, sec) %->% c(deg, min, sec)
-
     normalize_dec(deg, min, sec) -> fields
 
     new_rcrd(fields, class = "rastro_dec")
 }
 
+# METHODS
 normalize_dec_impl <- function(deg, min, sec) {
 
     mv <- vec_cast(sec %/% 60, integer())
@@ -54,7 +54,7 @@ normalize_dec_impl <- function(deg, min, sec) {
     return(list(deg = deg, min = min, sec = sec))
 }
 
-dec_2_neg <- function(deg, min, sec) {
+negate_dec <- function(deg, min, sec) {
 
     id <- sec %==% 0
     sec <- (60 - sec) %% 60
@@ -76,12 +76,12 @@ normalize_dec <- function(deg, min, sec) {
     normalize_dec_impl(deg, min, sec) %->% c(deg, min, sec)
 
     sign <- vec_init(integer(), vec_size(deg))
-    sign <- 1L
+    sign[1:len(sign)] <- 1L
 
     id <- (deg > 180L) | ((deg %==% 180L) & ((min > 0) | (sec > 0)))
 
     if (any(id)) {
-        dec_2_neg(deg[id], min[id], sec[id]) -> mod
+        negate_dec(deg[id], min[id], sec[id]) -> mod
 
         deg[id] <- mod$deg
         min[id] <- mod$min
@@ -249,6 +249,6 @@ vec_math.rastro_dec <- function(.fn, .x, ...) {
            sin = sin(dec_2_deg(.x) / 180 * pi),
            cos = cos(dec_2_deg(.x) / 180 * pi),
            tan = tan(dec_2_deg(.x) / 180 * pi),
-           abs = cc(!!!vmap_if(.x, ~.x < new_dec(0), ~-.x, .else = ~.x)),
+           abs = cc(!!!vmap_if(.x, ~.x < new_dec(0), ~-.x)),
            vec_math_base(.fn, .x, ...))
 }
