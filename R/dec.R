@@ -104,12 +104,12 @@ normalize_dec <- function(deg, min, sec) {
     return(list(sign = sign, deg = deg, min = min, sec = sec))
 }
 
-dec_2_deg <- function(x) {
-    vec_assert(x, new_dec())
-    sign <- field(x, "sign")
-    deg <- field(x, "deg")
-    min <- field(x, "min")
-    sec <- field(x, "sec")
+dec_2_deg <- function(dec) {
+    vec_assert(dec, new_dec())
+    sign <- field(dec, "sign")
+    deg <- field(dec, "deg")
+    min <- field(dec, "min")
+    sec <- field(dec, "sec")
 
     return(sign * (deg + min / 60 + sec / 3600))
 }
@@ -126,10 +126,6 @@ format.rastro_dec <- function(
     deg <- field(x, "deg")
     min <- field(x, "min")
     sec <- field(x, "sec")
-
-    rnd_err <- sec %==% 60
-    min[rnd_err] <- min[rnd_err] + 1L
-    sec[rnd_err] <- 0.0
 
     glue_fmt_chr(format)
 }
