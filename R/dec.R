@@ -23,14 +23,63 @@ new_dec <- function(deg = integer(), min = integer(), sec = double()) {
 }
 
 new_dec_from_degr <- function(deg) {
-    deg <- vec_cast(deg, double())
+    if (vec_is_empty(deg))
+        return(new_dec())
 
-    vec_recycle_common(deg, 0.0, 0.0) %->% c(deg, min, sec)
+    i_deg <- vec_cast(round(deg), integer())
+    sec <- 3600 * vec_cast(deg - i_deg, double())
+    vec_recycle_common(i_deg, 0L, sec) %->% c(deg, min, sec)
 
     normalize_dec(deg, min, sec) -> fields
 
     new_rcrd(fields, class = "rastro_dec")
 }
+
+dec_add_impl <- function(x, y) {
+    x %->% c(x_deg, x_min, x_sec)
+    y %->% c(y_deg, y_min, y_sec)
+
+    vec_recycle_common(x_deg, y_deg) %->% c(x_deg, y_deg)
+    vec_recycle_common(x_min, y_min) %->% c(x_min, y_min)
+    vec_recycle_common(x_sec, y_sec) %->% c(x_sec, y_sec)
+
+    sec <- x_sec + y_sec
+    mv <- vec_cast(sec %/% 60, integer())
+    sec <- sec %% 60
+
+    id <- mv %!=% 0
+    min <- x_min + y_min
+    min[id] <- min[id] + mv[id]
+    mv <- min %/% 60L
+    min <- min %% 60L
+
+    id <- mv %!=% 0
+
+    deg <- x_deg + y_deg
+    deg[id] <- deg[id] + mv[id]
+
+    deg <- deg %% 360L
+
+    return(list(deg = deg, min = min, sec = sec))
+}
+
+dec_2_neg <- function(x) {
+    x %->% c(deg, min, sec)
+
+    id <- sec %==% 0
+    sec <- (60 - sec) %% 60
+
+    min <- 60L - min - 1L
+    min[id] <- min[id] + 1L
+    id <- min %==% 60L
+    min <- min %% 60L
+
+    deg <- 360L - deg - 1L
+    deg[id] <- deg[id] + 1L
+
+    list(deg = deg, min = min, sec = sec)
+}
+
 
 normalize_dec <- function(deg, min, sec) {
     min <- min + vec_cast(sec %/% 60, integer())
@@ -51,7 +100,7 @@ normalize_dec <- function(deg, min, sec) {
     min[neg[nz_min]] <- 60L - min[neg[nz_min]]
 
     nz_deg <- deg[neg] != 0L
-    deg[nz_deg] <- 360L - deg[nz_deg]
+    deg[neg[nz_deg]] <- 360L - deg[neg[nz_deg]]
 
     sign <- ifelse(neg, -1L, 1L)
 
@@ -132,4 +181,55 @@ vec_proxy_compare.rastro_dec <- function(x, ...) {
     data.frame(
         min = sign * (field(x, "deg") * 60L + field(x, "min")),
         sec = sign * field(x, "sec"))
+}
+
+
+# ARITHMETIC
+vec_arith.rastro_dec <- function(op, x, y, ...) UseMethod("vec_arith.rastro_dec", y)
+vec_arith.rastro_dec.default <- function(op, x, y, ...) stop_incompatible_op(op, x, y)
+vec_arith.rastro_dec.MISSING <- function(op, x, y, ...) {
+    if (op %==% "-") {
+        data <- vec_data(x)
+        return(new_dec(-data$sign * data$deg, - data$sign * data$min, - data$sign * data$sec))
+    } else if (op %==% "+")
+        return(x)
+
+    stop_incompatible_op(op, x, y)
+}
+vec_arith.rastro_dec.rastro_dec <- function(op, x, y, ...) {
+    data_x <- vec_data(x)
+    data_y <- vec_data(y)
+    switch(
+        op,
+        "+" = new_dec(
+            data_x$sign * data_x$deg + data_y$sign * data_y$deg,
+            data_x$sign * data_x$min + data_y$sign * data_y$min,
+            data_x$sign * data_x$sec + data_y$sign * data_y$sec),
+        "-" = new_dec(
+            data_x$sign * data_x$deg - data_y$sign * data_y$deg,
+            data_x$sign * data_x$min - data_y$sign * data_y$min,
+            data_x$sign * data_x$sec - data_y$sign * data_y$sec),
+        stop_incompatible_op(op, x, y))
+}
+
+vec_arith.rastro_dec.double <- function(op, x, y, ...)
+    vec_arith.rastro_dec(op, x, vec_cast(y, new_dec()), ...)
+vec_arith.rastro_dec.integer <- function(op, x, y, ...)
+    vec_arith.rastro_dec(op, x, vec_cast(y, new_dec()), ...)
+vec_arith.rastro_dec.numeric <- function(op, x, y, ...)
+    vec_arith.rastro_dec(op, x, vec_cast(y, new_dec()), ...)
+vec_arith.integer.rastro_dec <- function(op, x, y, ...)
+    vec_arith.rastro_dec(op, vec_cast(x, new_dec()), y, ...)
+vec_arith.double.rastro_dec <- function(op, x, y, ...)
+    vec_arith.rastro_dec(op, vec_cast(x, new_dec()), y, ...)
+vec_arith.numeric.rastro_dec <- function(op, x, y, ...)
+    vec_arith.rastro_dec(op, vec_cast(x, new_dec()), y, ...)
+
+vec_math.rastro_dec <- function(.fn, .x, ...) {
+    switch(.fn,
+           sin = sin(dec_2_deg(.x) / 180 * pi),
+           cos = cos(dec_2_deg(.x) / 180 * pi),
+           tan = tan(dec_2_deg(.x) / 180 * pi),
+           abs = vec_c(!!!vmap_if(.x, ~.x < new_dec(0), ~-.x, .else = ~.x)),
+           vec_math_base(.fn, .x, ...))
 }
