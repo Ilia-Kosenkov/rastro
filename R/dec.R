@@ -35,27 +35,18 @@ new_dec_from_degr <- function(deg) {
     new_rcrd(fields, class = "rastro_dec")
 }
 
-dec_add_impl <- function(x, y) {
-    x %->% c(x_deg, x_min, x_sec)
-    y %->% c(y_deg, y_min, y_sec)
+normalize_dec_impl <- function(deg, min, sec) {
 
-    vec_recycle_common(x_deg, y_deg) %->% c(x_deg, y_deg)
-    vec_recycle_common(x_min, y_min) %->% c(x_min, y_min)
-    vec_recycle_common(x_sec, y_sec) %->% c(x_sec, y_sec)
-
-    sec <- x_sec + y_sec
     mv <- vec_cast(sec %/% 60, integer())
     sec <- sec %% 60
 
     id <- mv %!=% 0
-    min <- x_min + y_min
     min[id] <- min[id] + mv[id]
     mv <- min %/% 60L
     min <- min %% 60L
 
     id <- mv %!=% 0
 
-    deg <- x_deg + y_deg
     deg[id] <- deg[id] + mv[id]
 
     deg <- deg %% 360L
@@ -63,8 +54,7 @@ dec_add_impl <- function(x, y) {
     return(list(deg = deg, min = min, sec = sec))
 }
 
-dec_2_neg <- function(x) {
-    x %->% c(deg, min, sec)
+dec_2_neg <- function(deg, min, sec) {
 
     id <- sec %==% 0
     sec <- (60 - sec) %% 60
@@ -82,27 +72,34 @@ dec_2_neg <- function(x) {
 
 
 normalize_dec <- function(deg, min, sec) {
-    min <- min + vec_cast(sec %/% 60, integer())
-    sec <- sec %% 60
 
-    deg <- deg + min %/% 60L
-    min <- min %% 60L
+    normalize_dec_impl(deg, min, sec) %->% c(deg, min, sec)
 
-    deg <- deg %% 360L
-    neg <- deg >= 180L
+    sign <- vec_init(integer(), vec_size(deg))
+    sign <- 1L
 
-    nz_sec <- sec[neg] %!=% 0
-    min[neg[nz_sec]] <- min[neg[nz_sec]] + 1L
-    sec[neg[nz_sec]] <- 60 - sec[neg[nz_sec]]
+    id <- (deg > 180L) | ((deg %==% 180L) & ((min > 0) | (sec > 0)))
 
-    nz_min <- min[neg] != 0L
-    deg[neg[nz_min]] <- deg[neg[nz_min]] + 1L
-    min[neg[nz_min]] <- 60L - min[neg[nz_min]]
+    if (any(id)) {
+        dec_2_neg(deg[id], min[id], sec[id]) -> mod
 
-    nz_deg <- deg[neg] != 0L
-    deg[neg[nz_deg]] <- 360L - deg[neg[nz_deg]]
+        deg[id] <- mod$deg
+        min[id] <- mod$min
+        sec[id] <- mod$sec
+        sign[id] <- -1L
+    }
 
-    sign <- ifelse(neg, -1L, 1L)
+    id <- (deg > 90L) | ((deg %==% 90L) & ((min > 0) | (sec > 0)))
+    if (any(id)) {
+        angle_add_impl(
+            list(deg = 180L, min = 0L, sec = 0),
+            list(deg = -deg[id], min = -min[id], sec = -sec[id])) -> mod
+
+        deg[id] <- mod$deg
+        min[id] <- mod$min
+        sec[id] <- mod$sec
+    }
+
 
     return(list(sign = sign, deg = deg, min = min, sec = sec))
 }
@@ -230,6 +227,6 @@ vec_math.rastro_dec <- function(.fn, .x, ...) {
            sin = sin(dec_2_deg(.x) / 180 * pi),
            cos = cos(dec_2_deg(.x) / 180 * pi),
            tan = tan(dec_2_deg(.x) / 180 * pi),
-           abs = vec_c(!!!vmap_if(.x, ~.x < new_dec(0), ~-.x, .else = ~.x)),
+           abs = cc(!!!vmap_if(.x, ~.x < new_dec(0), ~-.x, .else = ~.x)),
            vec_math_base(.fn, .x, ...))
 }
