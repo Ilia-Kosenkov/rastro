@@ -118,10 +118,11 @@ dec_2_deg <- function(x) {
 # FORMAT
 format.rastro_dec <- function(
         x,
-        format = "{sign:%1s}{deg:%02d}:{min:%02d}:{sec:%06.3f}", ...) {
+        format = "{sign:%1s}{deg:%02d}:{min:%02d}:{sec:%06.3f}",
+        ...) {
     sign_val <- field(x, "sign")
     sign <- vec_repeat("+", len(sign_val))
-    sign[sign_val %==% -1] <- "-"
+    sign[sign_val %==% -1L] <- "-"
     deg <- field(x, "deg")
     min <- field(x, "min")
     sec <- field(x, "sec")
@@ -193,9 +194,33 @@ vec_arith.rastro_dec.MISSING <- function(op, x, y, ...) {
 
     stop_incompatible_op(op, x, y)
 }
+vec_arith.rastro_dec.double <- function(op, x, y, ...) {
+    vec_recycle_common(x, y) %->% c(x, y)
+    data_y <- vec_cast(y, double())
+    switch(
+        op,
+        "+" = x + new_dec_from_degr(data_y),
+        "-" = x - new_dec_from_degr(data_y),
+        "*" = new_dec_from_degr(dec_2_deg(x) * data_y),
+        "/" = new_dec_from_degr(dec_2_deg(x) / data_y),
+        stop_incompatible_op(op, x, y))
+}
+vec_arith.double.rastro_dec <- function(op, x, y, ...) {
+    vec_recycle_common(x, y) %->% c(x, y)
+    data_x <- vec_cast(x, double())
+
+    switch(
+        op,
+        "+" = new_dec_from_degr(data_x) + y,
+        "-" = new_dec_from_degr(data_x) - y,
+        "*" = new_dec_from_degr(data_x * dec_2_deg(y)),
+        stop_incompatible_op(op, x, y))
+}
 vec_arith.rastro_dec.rastro_dec <- function(op, x, y, ...) {
+    vec_recycle_common(x, y) %->% c(x, y)
     data_x <- vec_data(x)
     data_y <- vec_data(y)
+
     switch(
         op,
         "+" = new_dec(
@@ -209,18 +234,15 @@ vec_arith.rastro_dec.rastro_dec <- function(op, x, y, ...) {
         stop_incompatible_op(op, x, y))
 }
 
-vec_arith.rastro_dec.double <- function(op, x, y, ...)
-    vec_arith.rastro_dec(op, x, vec_cast(y, new_dec()), ...)
 vec_arith.rastro_dec.integer <- function(op, x, y, ...)
-    vec_arith.rastro_dec(op, x, vec_cast(y, new_dec()), ...)
+    vec_arith.rastro_dec.double(op, x, y, ...)
 vec_arith.rastro_dec.numeric <- function(op, x, y, ...)
-    vec_arith.rastro_dec(op, x, vec_cast(y, new_dec()), ...)
+    vec_arith.rastro_dec.double(op, x, y, ...)
 vec_arith.integer.rastro_dec <- function(op, x, y, ...)
-    vec_arith.rastro_dec(op, vec_cast(x, new_dec()), y, ...)
-vec_arith.double.rastro_dec <- function(op, x, y, ...)
-    vec_arith.rastro_dec(op, vec_cast(x, new_dec()), y, ...)
+    vec_arith.double.rastro_dec(op, x, y, ...)
 vec_arith.numeric.rastro_dec <- function(op, x, y, ...)
-    vec_arith.rastro_dec(op, vec_cast(x, new_dec()), y, ...)
+    vec_arith.double.rastro_dec(op, x, y, ...)
+
 
 vec_math.rastro_dec <- function(.fn, .x, ...) {
     switch(.fn,
