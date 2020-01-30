@@ -106,7 +106,7 @@ vec_ptype2.rastro_ra.integer <- function(x, y, ...) new_ra()
 vec_ptype2.integer.rastro_ra <- function(x, y, ...) new_ra()
 vec_ptype2.double.rastro_ra <- function(x, y, ...) new_ra()
 
-is_rastro_ra <- function(x, ...) vec_is(x, new_ra())
+is_ra <- function(x, ...) vec_is(x, new_ra())
 
 # CAST
 vec_cast.rastro_ra <- function(x, to, ...) UseMethod("vec_cast.rastro_ra")

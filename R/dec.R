@@ -173,7 +173,7 @@ vec_ptype2.rastro_dec.integer <- function(x, y, ...) new_dec()
 vec_ptype2.integer.rastro_dec <- function(x, y, ...) new_dec()
 vec_ptype2.double.rastro_dec <- function(x, y, ...) new_dec()
 
-is_rastro_dec <- function(x, ...) vec_is(x, new_dec())
+is_dec <- function(x, ...) vec_is(x, new_dec())
 
 # CAST
 vec_cast.rastro_dec <- function(x, to, ...) UseMethod("vec_cast.rastro_dec")

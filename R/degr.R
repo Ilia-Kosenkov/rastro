@@ -29,6 +29,7 @@ vec_ptype2.rastro_ra.rastro_degr <- function(x, y, ...) new_degr()
 vec_ptype2.rastro_degr.rastro_dec <- function(x, y, ...) new_degr()
 vec_ptype2.rastro_degr.rastro_ra <- function(x, y, ...) new_degr()
 
+is_degr <- function(x) vec_is(x, new_degr())
 
 # CAST
 vec_cast.rastro_degr <- function(x, to, ...) UseMethod("vec_cast.rastro_degr")
