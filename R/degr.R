@@ -29,7 +29,14 @@ vec_ptype2.rastro_ra.rastro_degr <- function(x, y, ...) new_degr()
 vec_ptype2.rastro_degr.rastro_dec <- function(x, y, ...) new_degr()
 vec_ptype2.rastro_degr.rastro_ra <- function(x, y, ...) new_degr()
 
+
+# LINKING PTYPE
+vec_ptype2.rastro_dec.rastro_ra <- function(x, y, ...) new_degr()
+vec_ptype2.rastro_ra.rastro_dec <- function(x, y, ...) new_degr()
+
+
 is_degr <- function(x) vec_is(x, new_degr())
+
 
 # CAST
 vec_cast.rastro_degr <- function(x, to, ...) UseMethod("vec_cast.rastro_degr")
@@ -44,7 +51,7 @@ vec_cast.double.rastro_degr <- function(x, to, ...) vec_data(x)
 vec_cast.integer.rastro_degr <- function(x, to, ...) vec_cast(vec_data(x), integer())
 
 vec_cast.rastro_dec.rastro_degr <- function(x, to, ...) new_dec_from_degr(vec_data(x))
-vec_cast.rastro_ra.rastro_degr <- function(x, to) new_ra_from_hr(vec_data(x) / 15)
+vec_cast.rastro_ra.rastro_degr <- function(x, to, ...) new_ra_from_hr(vec_data(x) / 15)
 
 as_degr <- function(x, ...) vec_cast(x, new_degr())
 
