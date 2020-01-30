@@ -62,7 +62,7 @@ vec_cast.integer.rastro_degr <- function(x, to, ...) vec_cast(vec_data(x), integ
 vec_cast.rastro_dec.rastro_degr <- function(x, to, ...) new_dec_from_degr(vec_data(x))
 vec_cast.rastro_ra.rastro_degr <- function(x, to, ...) new_ra_from_hr(vec_data(x) / 15)
 
-as_degr <- function(x, ...) vec_cast(x, new_degr())
+as_degr <- function(x) vec_cast(x, new_degr())
 
 # EQUALITY
 `%==%.rastro_degr` <- function(x, y) UseMethod("%==%.rastro_degr", y)
