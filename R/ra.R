@@ -116,7 +116,7 @@ vec_cast.rastro_ra.integer <- function(x, to, ...) new_ra_from_hr(x)
 vec_cast.rastro_ra.double <- function(x, to, ...) new_ra_from_hr(x)
 vec_cast.double.rastro_ra <- function(x, to, ...) ra_2_hr(x)
 
-as_rastro_ra <- function(x, ...) vec_cast(x, new_ra())
+as_ra <- function(x, ...) vec_cast(x, new_ra())
 
 
 # EQUALITY
@@ -192,13 +192,8 @@ vec_arith.rastro_ra.rastro_ra <- function(op, x, y, ...) {
 
 vec_arith.rastro_ra.integer <- function(op, x, y, ...)
     vec_arith.rastro_ra.double(op, x, y, ...)
-vec_arith.rastro_ra.numeric <- function(op, x, y, ...)
-    vec_arith.rastro_ra.double(op, x, y, ...)
 vec_arith.integer.rastro_ra <- function(op, x, y, ...)
     vec_arith.double.rastro_ra(op, x, y, ...)
-vec_arith.numeric.rastro_ra <- function(op, x, y, ...)
-    vec_arith.double.rastro_ra(op, x, y, ...)
-
 
 vec_math.rastro_ra <- function(.fn, .x, ...) {
     switch(.fn,

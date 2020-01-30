@@ -183,7 +183,7 @@ vec_cast.rastro_dec.integer <- function(x, to, ...) new_dec_from_degr(x)
 vec_cast.rastro_dec.double <- function(x, to, ...) new_dec_from_degr(x)
 vec_cast.double.rastro_dec <- function(x, to, ...) dec_2_deg(x)
 
-as_rastro_dec <- function(x, ...) vec_cast(x, new_dec())
+as_dec <- function(x, ...) vec_cast(x, new_dec())
 
 # EQUALITY
 `%==%.rastro_dec` <- function(x, y) UseMethod("%==%.rastro_dec", y)
@@ -260,11 +260,7 @@ vec_arith.rastro_dec.rastro_dec <- function(op, x, y, ...) {
 
 vec_arith.rastro_dec.integer <- function(op, x, y, ...)
     vec_arith.rastro_dec.double(op, x, y, ...)
-vec_arith.rastro_dec.numeric <- function(op, x, y, ...)
-    vec_arith.rastro_dec.double(op, x, y, ...)
 vec_arith.integer.rastro_dec <- function(op, x, y, ...)
-    vec_arith.double.rastro_dec(op, x, y, ...)
-vec_arith.numeric.rastro_dec <- function(op, x, y, ...)
     vec_arith.double.rastro_dec(op, x, y, ...)
 
 
