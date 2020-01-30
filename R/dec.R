@@ -18,6 +18,11 @@ new_dec <- function(deg = integer(), min = integer(), sec = double()) {
         sec = sec %0% 0.0) -> tmp
     tmp %->% c(deg, min, sec)
 
+    nas <- is.na(deg) | is.na(min) | is.na(sec)
+    deg[nas] <- NA_integer_
+    min[nas] <- NA_integer_
+    sec[nas] <- NA_real_
+
     normalize_dec(deg, min, sec) -> fields
     new_rcrd(fields, class = "rastro_dec")
 }
@@ -33,6 +38,8 @@ new_dec_from_degr <- function(deg) {
 
     new_rcrd(fields, class = "rastro_dec")
 }
+
+na_rastro_dec <- function() new_dec(NA)
 
 # METHODS
 normalize_dec_impl <- function(deg, min, sec) {
@@ -75,10 +82,13 @@ normalize_dec <- function(deg, min, sec) {
 
     normalize_dec_impl(deg, min, sec) %->% c(deg, min, sec)
 
-    sign <- vec_init(integer(), vec_size(deg))
-    sign[1:len(sign)] <- 1L
+    nas <- is.na(deg) | is.na(min) | is.na(sec)
 
-    id <- (deg > 180L) | ((deg %==% 180L) & ((min > 0) | (sec > 0)))
+    sign <- vec_init(integer(), vec_size(deg))
+    sign[vec_seq_along(sign)] <- 1L
+    sign[nas] <- NA_integer_
+
+    id <- !nas & ((deg > 180L) | ((deg %==% 180L) & ((min > 0) | (sec > 0))))
 
     if (any(id)) {
         negate_dec(deg[id], min[id], sec[id]) -> mod
@@ -89,7 +99,7 @@ normalize_dec <- function(deg, min, sec) {
         sign[id] <- -1L
     }
 
-    id <- (deg > 90L) | ((deg %==% 90L) & ((min > 0) | (sec > 0)))
+    id <- !nas & ((deg > 90L) | ((deg %==% 90L) & ((min > 0) | (sec > 0))))
     if (any(id)) {
         angle_add_impl(
             list(deg = 180L, min = 0L, sec = 0),
@@ -106,6 +116,7 @@ normalize_dec <- function(deg, min, sec) {
 
 dec_2_deg <- function(dec) {
     vec_assert(dec, new_dec())
+
     sign <- field(dec, "sign")
     deg <- field(dec, "deg")
     min <- field(dec, "min")
@@ -131,6 +142,7 @@ angle_add_impl <- function(x, y) {
 format.rastro_dec <- function(
         x,
         format = "{sign:%1s}{deg:%02d}:{min:%02d}:{sec:%06.3f}",
+        na_string = "NA_rastro_dec",
         ...) {
     sign_val <- field(x, "sign")
     sign <- vec_repeat("+", len(sign_val))
@@ -139,7 +151,11 @@ format.rastro_dec <- function(
     min <- field(x, "min")
     sec <- field(x, "sec")
 
-    glue_fmt_chr(format)
+    result <- glue_fmt_chr(format)
+    nas <- is.na(deg) | is.na(min) | is.na(sec)
+    result[nas] <- na_string
+
+    return(result)
 }
 
 
