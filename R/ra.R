@@ -75,7 +75,7 @@ normalize_ra <- function(hr, min, sec) {
 # FORMAT
 format.rastro_ra <- function(
         x,
-        format = "{hr:%02d}:{min:%02d}:{sec:%05.2f}",
+        format = "{hr:%02d}h{min:%02d}m{sec:%05.2f}s",
         na_string = "NA_rastro_ra_",
         ...) {
     hr <- field(x, "hr")

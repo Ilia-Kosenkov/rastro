@@ -141,7 +141,7 @@ angle_add_impl <- function(x, y) {
 # FORMAT
 format.rastro_dec <- function(
         x,
-        format = "{sign:%1s}{deg:%02d}:{min:%02d}:{sec:%06.3f}",
+        format = "{sign:%1s}{deg:%02d}°{min:%02d}'{sec:%02d}\".{fff:%03.0f}",
         na_string = "NA_rastro_dec",
         ...) {
     sign_val <- field(x, "sign")
@@ -150,6 +150,10 @@ format.rastro_dec <- function(
     deg <- field(x, "deg")
     min <- field(x, "min")
     sec <- field(x, "sec")
+
+    i_sec <- vec_cast(floor(sec), integer())
+    fff <- 100 * (sec - i_sec)
+    sec <- i_sec
 
     result <- glue_fmt_chr(format)
     nas <- is.na(deg) | is.na(min) | is.na(sec)
