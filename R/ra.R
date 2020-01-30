@@ -17,6 +17,11 @@ new_ra <- function(hr = integer(), min = integer(), sec = double()) {
         sec = sec %0% 0.0) -> tmp
     tmp %->% c(hr, min, sec)
 
+    nas <- is.na(hr) | is.na(min) | is.na(sec)
+    hr[nas] <- NA_integer_
+    min[nas] <- NA_integer_
+    sec[nas] <- NA_real_
+
     normalize_ra(hr, min, sec) -> fields
     new_rcrd(fields, class = "rastro_ra")
 }
@@ -32,6 +37,9 @@ new_ra_from_hr <- function(hr) {
 
     new_rcrd(fields, class = "rastro_ra")
 }
+
+na_rastro_ra <- function() new_ra(NA)
+
 
 # METHODS
 
@@ -68,12 +76,18 @@ normalize_ra <- function(hr, min, sec) {
 format.rastro_ra <- function(
         x,
         format = "{hr:%02d}:{min:%02d}:{sec:%05.2f}",
+        na_string = "NA_rastro_ra_",
         ...) {
     hr <- field(x, "hr")
     min <- field(x, "min")
     sec <- field(x, "sec")
 
-    glue_fmt_chr(format)
+    result <- glue_fmt_chr(format)
+
+    nas <- is.na(hr) | is.na(min) | is.na(sec)
+    result[nas] <- na_string
+
+    return(result)
 }
 
 
