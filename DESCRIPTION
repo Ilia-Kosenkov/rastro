@@ -16,6 +16,7 @@ ByteCompile: true
 Imports:
 	rlang,
 	vctrs,
+	purrr,
 	primitiveR
 Suggests:
 	magrittr,

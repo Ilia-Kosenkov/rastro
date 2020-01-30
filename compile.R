@@ -1,10 +1,9 @@
 if (interactive()) {
     # Library imports for debug go here
+    library(purrr)
     library(rlang)
     library(vctrs)
     library(primitiveR)
-    library(purrr)
-    library(magrittr)
 
     #if (!exists("compile_src"))
         #compile_src <<- function() {
