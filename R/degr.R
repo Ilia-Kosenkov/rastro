@@ -3,10 +3,19 @@ new_degr <- function(deg = double()) {
     new_vctr(vec_cast(deg, double(), x_arg = "deg") %% 360, class = "rastro_degr")
 }
 
+na_degr <- function() new_degr(NA_real_)
+
 # FORMAT
-format.rastro_degr <- function(x, format = "{x}°", ...) {
-    x <- vec_data(x)
-    glue_fmt_chr(format)
+format.rastro_degr <- function(
+    x,
+    format = "{deg}°",
+    na_string = "NA_rastro_degr_",
+    ...) {
+    deg <- vec_data(x)
+    result <- glue_fmt_chr(format)
+    result[is.na(deg)] <- na_string
+
+    return(result)
 }
 
 # METADATA
