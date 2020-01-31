@@ -190,7 +190,7 @@ vec_math.rastro_flux <- function(.fn, .x, ...) {
            abort(glue_fmt_chr("`{.fn}` cannot be applied to <{vec_ptype_full(.x)}>.")))
 }
 
-# FLUX -> NAG conversion 
+# FLUX -> NAG conversion
 
 vec_cast.rastro_mag.rastro_flux <- function(x, to, ..., x_arg = "x", to_arg = "to") {
     zf <- to %@% "zero_flux"
