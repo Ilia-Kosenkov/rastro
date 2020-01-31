@@ -152,24 +152,22 @@ vec_arith.rastro_ra.MISSING <- function(op, x, y, ...) {
 }
 vec_arith.rastro_ra.double <- function(op, x, y, ...) {
     vec_recycle_common(x, y) %->% c(x, y)
-    data_y <- vec_cast(y, double())
     switch(
         op,
-        "+" = x + new_ra_from_hr(data_y),
-        "-" = x - new_ra_from_hr(data_y),
-        "*" = new_ra_from_hr(ra_2_hr(x) * data_y),
-        "/" = new_ra_from_hr(ra_2_hr(x) / data_y),
+        "+" = x + new_ra_from_hr(y),
+        "-" = x - new_ra_from_hr(y),
+        "*" = new_ra_from_hr(ra_2_hr(x) * y),
+        "/" = new_ra_from_hr(ra_2_hr(x) / y),
         stop_incompatible_op(op, x, y))
 }
 vec_arith.double.rastro_ra <- function(op, x, y, ...) {
     vec_recycle_common(x, y) %->% c(x, y)
-    data_x <- vec_cast(x, double())
 
     switch(
         op,
-        "+" = new_ra_from_hr(data_x) + y,
-        "-" = new_ra_from_hr(data_x) - y,
-        "*" = new_ra_from_hr(data_x * ra_2_hr(y)),
+        "+" = new_ra_from_hr(x) + y,
+        "-" = new_ra_from_hr(x) - y,
+        "*" = new_ra_from_hr(x * ra_2_hr(y)),
         stop_incompatible_op(op, x, y))
 }
 vec_arith.rastro_ra.rastro_ra <- function(op, x, y, ...) {
@@ -191,9 +189,9 @@ vec_arith.rastro_ra.rastro_ra <- function(op, x, y, ...) {
 }
 
 vec_arith.rastro_ra.integer <- function(op, x, y, ...)
-    vec_arith.rastro_ra.double(op, x, y, ...)
+    vec_arith.rastro_ra.double(op, x, vec_cast(y, double()), ...)
 vec_arith.integer.rastro_ra <- function(op, x, y, ...)
-    vec_arith.double.rastro_ra(op, x, y, ...)
+    vec_arith.double.rastro_ra(op, vec_cast(x, double()), y, ...)
 
 vec_math.rastro_ra <- function(.fn, .x, ...) {
     switch(.fn,

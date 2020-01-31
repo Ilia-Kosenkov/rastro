@@ -224,24 +224,22 @@ vec_arith.rastro_dec.MISSING <- function(op, x, y, ...) {
 }
 vec_arith.rastro_dec.double <- function(op, x, y, ...) {
     vec_recycle_common(x, y) %->% c(x, y)
-    data_y <- vec_cast(y, double())
     switch(
         op,
-        "+" = x + new_dec_from_degr(data_y),
-        "-" = x - new_dec_from_degr(data_y),
-        "*" = new_dec_from_degr(dec_2_deg(x) * data_y),
-        "/" = new_dec_from_degr(dec_2_deg(x) / data_y),
+        "+" = x + new_dec_from_degr(y),
+        "-" = x - new_dec_from_degr(y),
+        "*" = new_dec_from_degr(dec_2_deg(x) * y),
+        "/" = new_dec_from_degr(dec_2_deg(x) / y),
         stop_incompatible_op(op, x, y))
 }
 vec_arith.double.rastro_dec <- function(op, x, y, ...) {
     vec_recycle_common(x, y) %->% c(x, y)
-    data_x <- vec_cast(x, double())
 
     switch(
         op,
-        "+" = new_dec_from_degr(data_x) + y,
-        "-" = new_dec_from_degr(data_x) - y,
-        "*" = new_dec_from_degr(data_x * dec_2_deg(y)),
+        "+" = new_dec_from_degr(x) + y,
+        "-" = new_dec_from_degr(x) - y,
+        "*" = new_dec_from_degr(x * dec_2_deg(y)),
         stop_incompatible_op(op, x, y))
 }
 vec_arith.rastro_dec.rastro_dec <- function(op, x, y, ...) {
@@ -263,9 +261,9 @@ vec_arith.rastro_dec.rastro_dec <- function(op, x, y, ...) {
 }
 
 vec_arith.rastro_dec.integer <- function(op, x, y, ...)
-    vec_arith.rastro_dec.double(op, x, y, ...)
+    vec_arith.rastro_dec.double(op, x, vec_cast(y, double()), ...)
 vec_arith.integer.rastro_dec <- function(op, x, y, ...)
-    vec_arith.double.rastro_dec(op, x, y, ...)
+    vec_arith.double.rastro_dec(op, ve_cast(x, double()), y, ...)
 
 
 vec_math.rastro_dec <- function(.fn, .x, ...) {
