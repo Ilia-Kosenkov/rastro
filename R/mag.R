@@ -1,7 +1,13 @@
 # CTOR
-new_mag <- function(m = double(), filter = NA_character_, zero_flux = NA_real_) {
-    zero_flux <- vec_assert(vec_cast(zero_flux, double()), size = 1L)
+new_mag <- function(m = double(), filter = NA_character_, zero_flux = na_flux()) {
     filter <- vec_assert(vec_cast(filter, character()), size = 1L)
+    zero_flux <- vec_assert(
+        vec_cast(
+            zero_flux,
+            new_flux(
+                filter = filter,
+                unit = zero_flux %@% "unit" %||% NA_character_)),
+        size = 1L)
 
     m <- vec_cast(m, double())
 
@@ -22,7 +28,7 @@ format.rastro_mag <- function(x,
 }
 
 obj_print_footer.rastro_mag <- function(x, ...) {
-    cat(glue_fmt_chr("Zero flux: {(x %@% 'zero_flux')}"))
+    cat(glue_fmt_chr("Zero flux: {format(x %@% 'zero_flux')}"))
 }
 
 # METADATA
@@ -53,7 +59,7 @@ vec_ptype2.rastro_mag.rastro_mag <- function(x, y, ..., x_arg = "x", y_arg = "y"
     stop_incompatible_type(x, y,
         details = vec_c(
             glue_fmt_chr("Filter: `{x_arg}` has `{x_flt}`, `{y_arg}` has `{y_flt}`"),
-            glue_fmt_chr("Zero flux: `{x_arg}` has `{x_zf:%.2e}`, `{y_arg}` has `{y_zf:%.2e}`")),
+            glue_fmt_chr("Zero flux: `{x_arg}` has `{format(x_zf)}`, `{y_arg}` has `{format(y_zf)}`")),
         x_arg = x_arg, y_arg = y_arg, ...)
 }
 vec_ptype2.rastro_mag.double <- function(x, y, ...)
@@ -69,7 +75,7 @@ vec_ptype2.double.rastro_mag <- function(x, y, ...)
 is_mag <- function(x, filter = NA_character_, zero_flux = NA_real_)
     vec_is(x, new_mag(filter = filter, zero_flux = zero_flux))
 
-
+is.na.rastro_mag <- function(x) is.na(vec_data(x))
 
 # CAST
 vec_cast.rastro_mag <- function(x, to, ..., x_arg = "x", to_arg = "to")
@@ -82,16 +88,20 @@ vec_cast.rastro_mag.rastro_mag <- function(x, to, ..., x_arg = "x", to_arg = "to
     to_flt <- to %@% "filter"
     to_zf <- to %@% "zero_flux"
 
-    cnd <- ((to_flt %===% x_flt) || is_na(x_flt)) &&
-        ((to_zf %===% x_zf) || is_na(x_zf))
+    cnd1 <- ((to_flt %===% x_flt) || is_na(x_flt))
+    cnd2 <- ((to_zf %===% x_zf) || is_na(x_zf))
 
-    if (cnd)
+    if (cnd1 && cnd2)
         return(new_mag(vec_data(x), filter = to_flt, zero_flux = to_zf))
 
-    stop_incompatible_cast(x, to,
-        details = "Magnitudes' filter and/or zero-flux differ.",
-        x_arg = x_arg, to_arg = to_arg,
-        ...)
+    maybe_lossy_cast(
+        result = new_mag(vec_data(x), to_flt, to_zf),
+        x = x, to = to,
+        lossy = vec_repeat(TRUE, vec_size(x)),
+        locations = vec_seq_along(x),
+        details = vec_c(
+            glue_fmt_chr("Filter: `{x_arg}` has `{x_flt}`, `{to_arg}` has `{to_flt}`"),
+            glue_fmt_chr("Zero flux: `{x_arg}` has `{format(x_zf)}`, `{to_arg}` has `{format(to_zf)}`")))
 }
 vec_cast.rastro_mag.integer <- function(x, to, ...)
     new_mag(x, filter = to %@% "filter", zero_flux = to %@% "zero_flux")
@@ -116,14 +126,14 @@ vec_proxy_equal.rastro_mag <- function(x, ...) {
 
     data.frame(
         mag = vec_data(x),
-        filter = vec_repeat(filter %|% "", vec_size(x)),
-        zero_flux = vec_repeat(zero_flux %|% 0, vec_size(x)),
+        filter = vec_repeat(filter %|% "2", vec_size(x)),
+        zero_flux = vec_repeat(zero_flux %|% new_flux(0), vec_size(x)),
         flag = 10L * vec_cast(is.na(filter), integer()) + vec_cast(is.na(zero_flux), integer()))
 }
 
 
 `%==%.rastro_mag` <- function(x, y) UseMethod("%==%.rastro_mag", y)
-`%==%.rastro_mag.default` <- function(x, y) vec_equal(x, y)
+`%==%.rastro_mag.default` <- function(x, y) vec_equal(x, y) %|% FALSE
 
 # ARITHMETIC
 vec_arith.rastro_mag <- function(op, x, y, ...) UseMethod("vec_arith.rastro_mag", y)
@@ -182,7 +192,7 @@ vec_math.rastro_mag <- function(.fn, .x, ...) {
            sign = vec_cast(sign(data_x), integer()),
            mean = new_degr(mean(data_x), .x %@% "filter", .x %@% "zero_flux"),
            sum = new_degr(sum(data_x), .x %@% "filter", .x %@% "zero_flux"),
-           is.na = is.na(data_x),
+           is.nan = is.nan(data_x),
            is.finite = is.finite(data_x),
            is.infinite = is.infinite(data_x),
            abort(glue_fmt_chr("`{.fn}` cannot be applied to <{vec_ptype_full(.x)}>.")))
