@@ -191,7 +191,7 @@ as_dec <- function(x, ...) vec_cast(x, new_dec())
 
 # EQUALITY
 `%==%.rastro_dec` <- function(x, y) UseMethod("%==%.rastro_dec", y)
-`%==%.rastro_dec.default` <- function(x, y) vec_equal(x, y)
+`%==%.rastro_dec.default` <- function(x, y) vec_equal(x, y) %|% FALSE
 `%==%.rastro_dec.rastro_dec` <- function(x, y) {
     proxy_x <- vec_proxy_equal(x)
     proxy_y <- vec_proxy_equal(y)
@@ -199,7 +199,7 @@ as_dec <- function(x, ...) vec_cast(x, new_dec())
     (proxy_x$sign == proxy_y$sign) &
         (proxy_x$deg == proxy_y$deg) &
         (proxy_x$min == proxy_y$min) &
-        (are_equal_f(proxy_x$sec, proxy_y$sec))
+        (are_equal_f(proxy_x$sec, proxy_y$sec)) %|% FALSE
 }
 
 vec_proxy_compare.rastro_dec <- function(x, ...) {
