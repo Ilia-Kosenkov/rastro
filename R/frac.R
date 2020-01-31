@@ -21,3 +21,13 @@ format_frac <- function(x) {
         return(glue_fmt_chr("^{x[1]}"))
     return(glue_fmt_chr("^{x[1]}/{x[2]}"))
 }
+
+proc_frac <- function(x, power) {
+    grps <- vec_group_loc(x$`2`)
+    grps$pw <- map(
+        grps$loc,
+        ~ simplify_frac(
+            power[1] * (as.integer(x[.x, "3"]) %|% 1L),
+            power[2] * (as.integer(x[.x, "4"]) %|% 1L)))
+    grps
+}

@@ -16,7 +16,7 @@ na_measure <- function() new_measure(NA_real_)
 
 
 simplify_units <- function(
-    units = "erg * cm ^-2 * Hz^-1 * s^-1 * s ^ 1/ 3 * erg ^ 1 / 2",
+    units = "48 * erg * cm ^-2 * Hz^-1 * s^-1 * s ^ 1/ 3 * 3 ^ 2* erg ^ 1 / 2",
     power = c(1L, 1L)) {
     if (is_na(units))
         return(NA_character_)
@@ -24,21 +24,39 @@ simplify_units <- function(
     power <- vec_cast(power, integer())
 
     strsplit(units, "\\*")[[1]] -> split
-    map(reg_sub(split, "([a-zA-Z]+)\\s*(?:\\^\\s*(?:([+-]?\\s*\\d+)\\s*(?:/\\s+(\\d+))?))?"),
-        vec_slice, -1L) -> x
+    map(reg_sub(split, "([a-zA-Z]+|(?:\\d+(?:\\.\\d+)?))\\s*(?:\\^\\s*(?:([+-]?\\s*\\d+)\\s*(?:/\\s+(\\d+))?))?"),
+        vec_slice, -1L) -> detections
 
-    x <- vec_rbind(!!!x)
-    grps <- vec_group_loc(x$`2`)
-    grps$pw <- map_chr(
-        grps$loc,
-        ~ format_frac(simplify_frac(
-            power[1] * (as.integer(x[.x, "3"]) %|% 1L),
-            power[2] * (as.integer(x[.x, "4"]) %|% 1L))))
+    detections <- vec_rbind(!!!detections)
 
-    grps <- grps[!is.na(grps$pw),]
-    grps <- grps[order(grps$key),]
+    num_rows <- grepl("^-?\\d+", detections$`2`)
+    nums <- detections[num_rows,]
+    units <- detections[!num_rows, ]
 
-    result <- paste(glue_fmt_chr("{grps$key}{grps$pw}"), collapse = " * ")
+    if (!vec_is_empty(nums)) {
+        nums <- proc_frac(nums, power)
+        prod <- prod(vmap_pt(nums, ~ as.numeric(.x$key) ^ (.x$pw[[1]][1] / .x$pw[[1]][2])))
+        if (prod %===% 1)
+            num <- NA_character_
+        else
+            num <- glue_fmt_chr("{prod:%g}")
+    }
+    else
+        num <- NA_character_
+
+    if (!vec_is_empty(units)) {
+        units <- proc_frac(units, power)
+        units$pw <- map_chr(units$pw, format_frac)
+        units <- units[!is.na(units$pw),]
+        units <- units[order(units$key),] 
+        unit <- paste(glue_fmt_chr("{units$key}{units$pw}"), collapse = " * ")
+    }
+    else
+        unit <- NA_character_
+
+    result <- vec_c(num, unit)
+    result <- result[!is.na(result)]
+    result <- paste(result, collapse = " * ")
     if (!nzchar(result))
         return(NA_character_)
 
@@ -52,7 +70,7 @@ combine_units <- function(x, y, propagate_na = TRUE) {
     units <- vec_c(x, y)
     units <- units[!is.na(units)]
     if (vec_is_empty(units))
-        units <- NA_character_
+        return(NA_character_)
 
     simplify_units(paste(units, collapse = " * "))
 }
@@ -165,24 +183,35 @@ vec_arith.rastro_measure.MISSING <- function(op, x, y, ...) {
     stop_incompatible_op(op, x, y)
 }
 vec_arith.rastro_measure.numeric <- function(op, x, y, ...) {
-    vec_recycle_common(x, y) %->% c(x, y)
-    data_x <- vec_data(x)
     switch(
         op,
-        "+" = new_measure(data_x + y, x %@% "quantity", x %@% "unit"),
-        "-" = new_measure(data_x - y, x %@% "quantity", x %@% "unit"),
-        "*" = new_measure(data_x * y, x %@% "quantity", x %@% "unit"),
-        "/" = new_measure(data_x / y, x %@% "quantity", x %@% "unit"),
+        "+" = x + new_measure(y, format(y)),
+        "-" = x - new_measure(y, format(y)),
+        "*" = x * new_measure(y, format(y)),
+        "/" = x / new_measure(y, format(y)),
+        "^" = {
+            y <- vec_assert(y, size = 1L)
+            cast <- allow_lossy_cast(vec_cast(y, integer()))
+            cast_inv <- allow_lossy_cast(vec_cast(1 / y, integer()))
+            if (y %===% cast)
+                power <- vec_c(cast, 1L)
+            else if ((1 / y) %===% cast_inv)
+                    power <- vec_c(1L, cast_inv)
+            else
+                stop_incompatible_op(op, x, y)
+            new_measure(
+                vec_data(x) ^ y,
+                simplify_units(x %@% "quantity", power = power),
+                simplify_units(x %@% "unit", power = power))
+        },
         stop_incompatible_op(op, x, y))
 }
 vec_arith.numeric.rastro_measure <- function(op, x, y, ...) {
-    vec_recycle_common(x, y) %->% c(x, y)
-    data_y <- vec_data(y)
     switch(
         op,
-        "+" = new_measure(x + data_y, y %@% "quantity", y %@% "unit"),
-        "-" = new_measure(x - data_y, y %@% "quantity", y %@% "unit"),
-        "*" = new_measure(x * data_y, y %@% "quantity", y %@% "unit"),
+        "+" = new_measure(x, format(x)) + y,
+        "-" = new_measure(x, format(x)) - y,
+        "*" = new_measure(x, format(x)) * y,
         stop_incompatible_op(op, x, y))
 }
 vec_arith.rastro_measure.rastro_measure <- function(op, x, y, ...) {
