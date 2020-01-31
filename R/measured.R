@@ -14,9 +14,15 @@ na_measure <- function() new_measure(NA_real_)
 
 # METHODS
 
-simplify_units <- function(units = "erg * cm ^-2 * Hz^-1 * s^-1 * s ^ 1/ 3 * erg ^ 1 / 2") {
+
+simplify_units <- function(
+    units = "erg * cm ^-2 * Hz^-1 * s^-1 * s ^ 1/ 3 * erg ^ 1 / 2",
+    power = c(1L, 1L)) {
     if (is_na(units))
         return(NA_character_)
+
+    power <- vec_cast(power, integer())
+
     strsplit(units, "\\*")[[1]] -> split
     map(reg_sub(split, "([a-zA-Z]+)\\s*(?:\\^\\s*(?:([+-]?\\s*\\d+)\\s*(?:/\\s+(\\d+))?))?"),
         vec_slice, -1L) -> x
@@ -25,7 +31,9 @@ simplify_units <- function(units = "erg * cm ^-2 * Hz^-1 * s^-1 * s ^ 1/ 3 * erg
     grps <- vec_group_loc(x$`2`)
     grps$pw <- map_chr(
         grps$loc,
-        ~ format_frac(simplify_frac(as.integer(x[.x, "3"]) %|% 1L, as.integer(x[.x, "4"]) %|% 1L)))
+        ~ format_frac(simplify_frac(
+            power[1] * (as.integer(x[.x, "3"]) %|% 1L),
+            power[2] * (as.integer(x[.x, "4"]) %|% 1L))))
 
     grps <- grps[!is.na(grps$pw),]
     grps <- grps[order(grps$key),]
@@ -35,6 +43,18 @@ simplify_units <- function(units = "erg * cm ^-2 * Hz^-1 * s^-1 * s ^ 1/ 3 * erg
         return(NA_character_)
 
     return(result)
+}
+
+combine_units <- function(x, y, propagate_na = TRUE) {
+    if (propagate_na && (is_na(x) || is_na(y)))
+        return(NA_character_)
+
+    units <- vec_c(x, y)
+    units <- units[!is.na(units)]
+    if (vec_is_empty(units))
+        units <- NA_character_
+
+    simplify_units(paste(units, collapse = " * "))
 }
 
 get_unit_str <- function(x)
@@ -90,14 +110,6 @@ vec_ptype2.rastro_measure.rastro_measure <- function(x, y, ..., x_arg = "x", y_a
                 " `{y_arg}` is [{get_unit_str(y_u)}]")),
         x_arg = x_arg, y_arg = y_arg, ...)
 }
-#vec_ptype2.rastro_measure.double <- function(x, y, ...)
-    #new_measure(filter = x %@% "filter", zero_flux = x %@% "zero_flux")
-#vec_ptype2.rastro_measure.integer <- function(x, y, ...)
-    #new_measure(filter = x %@% "filter", zero_flux = x %@% "zero_flux")
-#vec_ptype2.integer.rastro_measure <- function(x, y, ...)
-    #new_measure(filter = y %@% "filter", zero_flux = y %@% "zero_flux")
-#vec_ptype2.double.rastro_measure <- function(x, y, ...)
-#new_measure(filter = y %@% "filter", zero_flux = y %@% "zero_flux")
 
 # CAST
 vec_cast.rastro_measure <- function(x, to, ..., x_arg = "x", to_arg = "to")
@@ -132,6 +144,15 @@ vec_cast.rastro_measure.numeric <- function(x, to, ...)
     new_measure(x, quantity = to %@% "quantity", unit = to %@% "unit")
 
 vec_cast.numeric.rastro_measure <- function(x, to, ...) vec_data(x)
+
+as_measure <- function(x, quantity = missing_arg(), unit = missing_arg()) {
+    if (is_missing(quantity))
+        quantity <- x %@% "quantity"
+    if (is_missing(unit))
+        unit <- x %@% "unit"
+
+    new_measure(vec_data(x), quantity, unit)
+}
 
 # ARITHMETIC
 vec_arith.rastro_measure <- function(op, x, y, ...) UseMethod("vec_arith.rastro_measure", y)
@@ -170,18 +191,23 @@ vec_arith.rastro_measure.rastro_measure <- function(op, x, y, ...) {
         vec_cast_common(x, y) %->% c(x, y)
         return(new_measure(vec_arith_base(op, x, y), x %@% "quantity", x %@% "unit"))
     }
-    else if ((op %===% "*")) {
-        unit <- vec_c(x %@% "unit", y %@% "unit")
-        unit <- unit[!is.na(unit)]
-        if (vec_is_empty(unit))
-            unit <- NA_character_
+    else if (op %===% "*") {
+        unit <- combine_units(x %@% "unit", y %@% "unit", FALSE)
 
-        unit <- simplify_units(paste(unit, collapse = " * "))
+        quantity <- combine_units(x %@% "quantity", y %@% "quantity", TRUE)
 
-        quantity <- vec_c(x %@% "quantity", y %@% "quantity")
-        if (any(is.na(quantity)))
-            quantity <- NA_character_
-        quantity <- simplify_units(paste(quantity, collapse = " * "))
+        return(new_measure(vec_arith_base(op, x, y), quantity = quantity, unit = unit))
+    }
+    else if (op %===% "/") {
+        unit <- combine_units(
+            x %@% "unit",
+            simplify_units(y %@% "unit", vec_c(-1L, 1L)),
+            FALSE)
+
+        quantity <- combine_units(
+            x %@% "quantity",
+            simplify_units(y %@% "quantity", vec_c(-1L, 1L)),
+            TRUE)
 
         return(new_measure(vec_arith_base(op, x, y), quantity = quantity, unit = unit))
     }
