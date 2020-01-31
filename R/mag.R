@@ -114,14 +114,14 @@ vec_cast.integer.rastro_mag <- function(x, to, ...) vec_cast(vec_data(x), intege
 as_mag <- function(x, filter = NA_character_, zero_flux = NA_real_, ...)
     vec_cast(x, new_mag(filte = filter, zero_flux = zero_flux))
 
-vec_restore.rastro_mag <- function(x, to, ..., i = NULL) {
-    new_mag(x, to %@% "filter", to %@% "zero_flux")
-}
+#vec_restore.rastro_mag <- function(x, to, ..., i = NULL) {
+    #new_mag(x, to %@% "filter", to %@% "zero_flux")
+#}
 
-vec_proxy.rastro_mag <- function(x, ...) {
-    attributes(x) <- NULL
-    x
-}
+#vec_proxy.rastro_mag <- function(x, ...) {
+    #attributes(x) <- NULL
+    #x
+#}
 
 
 # EQUALITY
@@ -140,7 +140,7 @@ vec_arith.rastro_mag.MISSING <- function(op, x, y, ...) {
         return(x)
     stop_incompatible_op(op, x, y)
 }
-vec_arith.rastro_mag.double <- function(op, x, y, ...) {
+vec_arith.rastro_mag.numeric <- function(op, x, y, ...) {
     vec_recycle_common(x, y) %->% c(x, y)
     data_x <- vec_data(x)
     switch(
@@ -151,7 +151,7 @@ vec_arith.rastro_mag.double <- function(op, x, y, ...) {
         "/" = new_mag(data_x / y, x %@% "filter", x %@% "zero_flux"),
         stop_incompatible_op(op, x, y))
 }
-vec_arith.double.rastro_mag <- function(op, x, y, ...) {
+vec_arith.numeric.rastro_mag <- function(op, x, y, ...) {
     vec_recycle_common(x, y) %->% c(x, y)
     data_y <- vec_data(y)
     switch(
@@ -174,10 +174,10 @@ vec_arith.rastro_mag.rastro_mag <- function(op, x, y, ...) {
         stop_incompatible_op(op, x, y))
 }
 
-vec_arith.rastro_mag.integer <- function(op, x, y, ...)
-    vec_arith.rastro_degr.double(op, x, vec_cast(y, double()), ...)
-vec_arith.integer.rastro_mag <- function(op, x, y, ...)
-    vec_arith.double.rastro_degr(op, vec_cast(x, double()), y, ...)
+#vec_arith.rastro_mag.integer <- function(op, x, y, ...)
+    #vec_arith.rastro_degr.double(op, x, vec_cast(y, double()), ...)
+#vec_arith.integer.rastro_mag <- function(op, x, y, ...)
+    #vec_arith.double.rastro_degr(op, vec_cast(x, double()), y, ...)
 
 
 vec_math.rastro_mag <- function(.fn, .x, ...) {

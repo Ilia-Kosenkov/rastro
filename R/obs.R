@@ -36,7 +36,7 @@ new_obs <- function(
     vec_slice(n_err, nas) <- na_val
     vec_slice(p_err, nas) <- na_val
 
-    if (!vec_is_empty(x))
+    if (!vec_is_empty(obs))
         assert(((n_err[!nas] >= vec_cast(0, item_ptype)) %===% TRUE) && ((p_err[!nas] >= vec_cast(0, item_ptype)) %===% TRUE),
             "Errors should be strictly non-negative.")
 
