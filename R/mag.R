@@ -12,7 +12,7 @@ na_mag <- function() new_mag(NA_real_)
 
 # FORMAT
 format.rastro_mag <- function(x,
-    format = "{mag:%.3f}m",
+    format = "{mag:%.3f}",
     na_string = "NA_rastro_mag_",
     ...) {
     mag <- vec_data(x)
@@ -121,3 +121,66 @@ vec_proxy_equal.rastro_mag <- function(x, ...) {
 
 `%==%.rastro_mag` <- function(x, y) UseMethod("%==%.rastro_mag", y)
 `%==%.rastro_mag.default` <- function(x, y) vec_equal(x, y)
+
+# ARITHMETIC
+vec_arith.rastro_mag <- function(op, x, y, ...) UseMethod("vec_arith.rastro_mag", y)
+vec_arith.rastro_mag.default <- function(op, x, y, ...) stop_incompatible_op(op, x, y)
+vec_arith.rastro_mag.MISSING <- function(op, x, y, ...) {
+    if (op %==% "-") {
+        return(new_mag(-vec_data(x), x %@% "filter", x %@% "zero_flux"))
+    } else if (op %==% "+")
+        return(x)
+    stop_incompatible_op(op, x, y)
+}
+vec_arith.rastro_mag.double <- function(op, x, y, ...) {
+    vec_recycle_common(x, y) %->% c(x, y)
+    data_x <- vec_data(x)
+    switch(
+        op,
+        "+" = new_mag(data_x + y, x %@% "filter", x %@% "zero_flux"),
+        "-" = new_mag(data_x - y, x %@% "filter", x %@% "zero_flux"),
+        "*" = new_mag(data_x * y, x %@% "filter", x %@% "zero_flux"),
+        "/" = new_mag(data_x / y, x %@% "filter", x %@% "zero_flux"),
+        stop_incompatible_op(op, x, y))
+}
+vec_arith.double.rastro_mag <- function(op, x, y, ...) {
+    vec_recycle_common(x, y) %->% c(x, y)
+    data_y <- vec_data(y)
+    switch(
+        op,
+        "+" = new_mag(x + data_y, y %@% "filter", y %@% "zero_flux"),
+        "-" = new_mag(x - data_y, y %@% "filter", y %@% "zero_flux"),
+        "*" = new_mag(x * data_y, y %@% "filter", y %@% "zero_flux"),
+        stop_incompatible_op(op, x, y))
+}
+vec_arith.rastro_mag.rastro_mag <- function(op, x, y, ...) {
+    vec_recycle_common(x, y) %->% c(x, y)
+    vec_ptype_common(x, y) -> ptype
+    data_x <- vec_data(x)
+    data_y <- vec_data(y)
+
+    switch(
+        op,
+        "+" = new_mag(data_x + data_y, ptype %@% "filter", ptype %@% "zero_flux"),
+        "-" = new_mag(data_x - data_y, ptype %@% "filter", ptype %@% "zero_flux"),
+        stop_incompatible_op(op, x, y))
+}
+
+vec_arith.rastro_mag.integer <- function(op, x, y, ...)
+    vec_arith.rastro_degr.double(op, x, vec_cast(y, double()), ...)
+vec_arith.integer.rastro_mag <- function(op, x, y, ...)
+    vec_arith.double.rastro_degr(op, vec_cast(x, double()), y, ...)
+
+
+vec_math.rastro_mag <- function(.fn, .x, ...) {
+    data_x <- vec_data(.x)
+    switch(.fn,
+           abs = as_vec(vmap_if(.x, ~.x < 0, ~-.x)),
+           sign = sign(data_x),
+           mean = new_degr(mean(data_x), .x %@% "filter", .x %@% "zero_flux"),
+           sum = new_degr(sum(data_x), .x %@% "filter", .x %@% "zero_flux"),
+           is.na = is.na(data_x),
+           is.finite = is.finite(data_x),
+           is.infinite = is.infinite(data_x),
+           abort(glue_fmt_chr("`{.fn}` cannot be applied to <{vec_ptype_full(.x)}>.")))
+}
