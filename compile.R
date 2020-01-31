@@ -25,7 +25,7 @@ if (interactive()) {
         #}
 
     #compile_src()
-    purrr::walk(fs::dir_ls("R", glob = "*R"), source)
+    purrr::walk(fs::dir_ls("R", glob = "*R"), source, encoding = "utf-8")
 } else {
 
     message("Running `roxygen2::roxygenize`...")

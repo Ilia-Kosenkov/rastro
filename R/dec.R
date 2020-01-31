@@ -39,7 +39,7 @@ new_dec_from_degr <- function(deg) {
     new_rcrd(fields, class = "rastro_dec")
 }
 
-na_rastro_dec <- function() new_dec(NA)
+na_dec <- function() new_dec(NA)
 
 # METHODS
 normalize_dec_impl <- function(deg, min, sec) {

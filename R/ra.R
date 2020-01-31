@@ -38,7 +38,7 @@ new_ra_from_hr <- function(hr) {
     new_rcrd(fields, class = "rastro_ra")
 }
 
-na_rastro_ra <- function() new_ra(NA)
+na_ra <- function() new_ra(NA)
 
 
 # METHODS
@@ -126,10 +126,10 @@ as_ra <- function(x, ...) vec_cast(x, new_ra())
     proxy_x <- vec_proxy_equal(x)
     proxy_y <- vec_proxy_equal(y)
 
-    (proxy_x$sign == proxy_y$sign) &
-        (proxy_x$hr == proxy_y$hr) &
+
+    (proxy_x$hr == proxy_y$hr) &
         (proxy_x$min == proxy_y$min) &
-        (are_equal_f(proxy_x$sec, proxy_y$sec))
+        (are_equal_f(proxy_x$sec, proxy_y$sec)) %|% FALSE
 }
 
 vec_proxy_compare.rastro_ra <- function(x, ...) {

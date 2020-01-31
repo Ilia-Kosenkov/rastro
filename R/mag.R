@@ -14,7 +14,7 @@ new_mag <- function(m = double(), filter = NA_character_, zero_flux = na_rastro_
     new_vctr(m, filter = filter, zero_flux = zero_flux, class = "rastro_mag")
 }
 
-na_rastro_mag <- function() new_mag(NA_real_)
+na_mag <- function() new_mag(NA_real_)
 
 # FORMAT
 format.rastro_mag <- function(x,

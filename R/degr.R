@@ -108,14 +108,8 @@ vec_arith.rastro_degr.rastro_degr <- function(op, x, y, ...) {
 
     switch(
         op,
-        "+" = new_degr(
-            data_x$hr + data_y$hr,
-            data_x$min + data_y$min,
-            data_x$sec + data_y$sec),
-        "-" = new_degr(
-           data_x$hr - data_y$hr,
-            data_x$min - data_y$min,
-            data_x$sec - data_y$sec),
+        "+" = new_degr(data_x + data_y),
+        "-" = new_degr(data_x + data_y),
         stop_incompatible_op(op, x, y))
 }
 

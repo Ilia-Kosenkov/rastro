@@ -8,7 +8,7 @@ new_flux <- function(flux = double(), filter = NA_character_, unit = NA_characte
     new_vctr(f, filter = filter, unit = unit, class = "rastro_flux")
 }
 
-na_rastro_flux <- function() new_flux(NA_real_)
+na_flux <- function() new_flux(NA_real_)
 
 # FORMAT
 format.rastro_flux <- function(x,
