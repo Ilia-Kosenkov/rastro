@@ -1,13 +1,9 @@
-reg_sub <- function(text, pattern, drop_full = TRUE) {
+reg_sub <- function(text, pattern) {
     text <- vec_cast(text, character())
     pattern <- vec_assert(vec_cast(pattern, character()), size = 1L)
-    vec_assert(drop_full, logical(), 1L)
 
     matches <- regexec(pattern, text) %>%
         vmap(~data.frame(start = .x, stop = .x +  (.x %@% "match.length") - 1L))
-
-    if (drop_full)
-        matches <- vmap(matches, vec_slice, -1)
 
     vmap2(text, matches, list) %>%
         vmap_if(
