@@ -12,7 +12,7 @@ na_flux <- function() new_flux(NA_real_)
 
 # FORMAT
 format.rastro_flux <- function(x,
-    format = "{flux:%11.3e}",
+    format = "{flux:%.3e}",
     na_string = "NA_rastro_flux_",
     ...) {
     flux <- vec_data(x)
@@ -67,6 +67,8 @@ vec_ptype2.double.rastro_flux <- function(x, y, ...)
 is_flux <- function(x, filter = NA_character_, unit = NA_real_)
     vec_is(x, new_flux(filter = filter, unit = unit))
 
+is.na.rastro_flux <- function(x) is.na(vec_data(x))
+
 # CAST
 vec_cast.rastro_flux <- function(x, to, ..., x_arg = "x", to_arg = "to")
     UseMethod("vec_cast.rastro_flux")
@@ -115,7 +117,7 @@ vec_proxy_equal.rastro_flux <- function(x, ...) {
     unit <- x %@% "unit"
 
     data.frame(
-        mag = vec_data(x),
+        flux = vec_data(x),
         filter = vec_repeat(filter %|% "", vec_size(x)),
         unit = vec_repeat(unit %|% "", vec_size(x)),
         flag = 10L * vec_cast(is.na(filter), integer()) + vec_cast(is.na(unit), integer()))
@@ -123,7 +125,7 @@ vec_proxy_equal.rastro_flux <- function(x, ...) {
 
 
 `%==%.rastro_flux` <- function(x, y) UseMethod("%==%.rastro_flux", y)
-`%==%.rastro_flux.default` <- function(x, y) vec_equal(x, y)
+`%==%.rastro_flux.default` <- function(x, y) vec_equal(x, y) %|% FALSE
 
 # ARITHMETIC
 vec_arith.rastro_flux <- function(op, x, y, ...) UseMethod("vec_arith.rastro_flux", y)
@@ -176,12 +178,13 @@ vec_arith.integer.rastro_flux <- function(op, x, y, ...)
 
 vec_math.rastro_flux <- function(.fn, .x, ...) {
     data_x <- vec_data(.x)
+    print(.fn)
     switch(.fn,
            abs = new_flux(abs(data_x), .x %@% "filter", .x %@% "unit"),
            sign = vec_cast(sign(data_x), integer()),
            mean = new_degr(mean(data_x), .x %@% "filter", .x %@% "unit"),
            sum = new_degr(sum(data_x), .x %@% "filter", .x %@% "unit"),
-           is.na = is.na(data_x),
+           is.nan = is.nan(data_x),
            is.finite = is.finite(data_x),
            is.infinite = is.infinite(data_x),
            abort(glue_fmt_chr("`{.fn}` cannot be applied to <{vec_ptype_full(.x)}>.")))
