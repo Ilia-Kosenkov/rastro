@@ -107,21 +107,16 @@ vec_cast.integer.rastro_flux <- function(x, to, ...) vec_cast(vec_data(x), integ
 as_flux <- function(x, filter = NA_character_, unit = NA_real_, ...)
     vec_cast(x, new_flux(filte = filter, unit = unit))
 
-vec_restore.rastro_flux <- function(x, to, ..., i = NULL) {
+vec_restore.rastro_flux <- function(x, to, ...) {
     new_flux(x, to %@% "filter", to %@% "unit")
 }
 
-# EQUALITY
-vec_proxy_equal.rastro_flux <- function(x, ...) {
-    filter <- x %@% "filter"
-    unit <- x %@% "unit"
-
-    data.frame(
-        flux = vec_data(x),
-        filter = vec_repeat(filter %|% "", vec_size(x)),
-        unit = vec_repeat(unit %|% "", vec_size(x)),
-        flag = 10L * vec_cast(is.na(filter), integer()) + vec_cast(is.na(unit), integer()))
+vec_proxy.rastro_flux <- function(x, ...) {
+    attributes(x) <- NULL
+    x
 }
+
+# EQUALITY
 
 
 `%==%.rastro_flux` <- function(x, y) UseMethod("%==%.rastro_flux", y)
