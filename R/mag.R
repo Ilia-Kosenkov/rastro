@@ -50,8 +50,11 @@ vec_ptype2.rastro_mag.rastro_mag <- function(x, y, ..., x_arg = "x", y_arg = "y"
         return(new_mag(filter = flt, zero_flux = zf))
     }
 
-    stop_incompatible_cast(x, y,
-        details = "Magnitudes' filter and/or zero-flux differ.", x_arg = x_arg, y_arg = y_arg, ...)
+    stop_incompatible_type(x, y,
+        details = vec_c(
+            glue_fmt_chr("Filter: `{x_arg}` has `{x_flt}`, `{y_arg}` has `{y_flt}`"),
+            glue_fmt_chr("Zero flux: `{x_arg}` has `{x_zf:%.2e}`, `{y_arg}` has `{y_zf:%.2e}`")),
+        x_arg = x_arg, y_arg = y_arg, ...)
 }
 vec_ptype2.rastro_mag.double <- function(x, y, ...)
     new_mag(filter = x %@% "filter", zero_flux = x %@% "zero_flux")
@@ -126,9 +129,9 @@ vec_proxy_equal.rastro_mag <- function(x, ...) {
 vec_arith.rastro_mag <- function(op, x, y, ...) UseMethod("vec_arith.rastro_mag", y)
 vec_arith.rastro_mag.default <- function(op, x, y, ...) stop_incompatible_op(op, x, y)
 vec_arith.rastro_mag.MISSING <- function(op, x, y, ...) {
-    if (op %==% "-") {
+    if (op %===% "-") {
         return(new_mag(-vec_data(x), x %@% "filter", x %@% "zero_flux"))
-    } else if (op %==% "+")
+    } else if (op %===% "+")
         return(x)
     stop_incompatible_op(op, x, y)
 }
@@ -175,8 +178,8 @@ vec_arith.integer.rastro_mag <- function(op, x, y, ...)
 vec_math.rastro_mag <- function(.fn, .x, ...) {
     data_x <- vec_data(.x)
     switch(.fn,
-           abs = as_vec(vmap_if(.x, ~.x < 0, ~-.x)),
-           sign = sign(data_x),
+           abs = new_mag(abs(data_x), .x %@% "filter", .x %@% "zero_flux"),
+           sign = vec_cast(sign(data_x), integer()),
            mean = new_degr(mean(data_x), .x %@% "filter", .x %@% "zero_flux"),
            sum = new_degr(sum(data_x), .x %@% "filter", .x %@% "zero_flux"),
            is.na = is.na(data_x),
