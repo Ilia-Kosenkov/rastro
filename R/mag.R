@@ -32,7 +32,7 @@ obj_print_footer.rastro_mag <- function(x, ...) {
 }
 
 # METADATA
-vec_ptype_abbr.rastro_mag <- function(x, ...) 
+vec_ptype_abbr.rastro_mag <- function(x, ...)
     glue_fmt_chr("mag<{(x %@% 'filter') %|% '?'}>")
 vec_ptype_full.rastro_mag <- function(x, ...)
     glue_fmt_chr("rastro_mag<{(x %@% 'filter') %|% '?'}>")
@@ -196,4 +196,13 @@ vec_math.rastro_mag <- function(.fn, .x, ...) {
            is.finite = is.finite(data_x),
            is.infinite = is.infinite(data_x),
            abort(glue_fmt_chr("`{.fn}` cannot be applied to <{vec_ptype_full(.x)}>.")))
+}
+
+
+# MAG -> FLUX conversion
+
+vec_cast.rastro_flux.rastro_mag <- function(x, to, ..., x_arg = "x", to_arg = "to") {
+    zf <- vec_cast(x %@% "zero_flux", to)
+
+    new_flux(zf * 10 ^ (-vec_data(x) / 2.5), zf %@% "filter", zf %@% "unit")
 }

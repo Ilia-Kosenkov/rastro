@@ -189,3 +189,12 @@ vec_math.rastro_flux <- function(.fn, .x, ...) {
            is.infinite = is.infinite(data_x),
            abort(glue_fmt_chr("`{.fn}` cannot be applied to <{vec_ptype_full(.x)}>.")))
 }
+
+# FLUX -> NAG conversion 
+
+vec_cast.rastro_mag.rastro_flux <- function(x, to, ..., x_arg = "x", to_arg = "to") {
+    zf <- to %@% "zero_flux"
+    x <- vec_cast(x, zf)
+
+    new_mag(-2.5 * log10(vec_data(x) / vec_data(zf)), filter = zf %@% "filter", zero_flux = zf)
+}
