@@ -125,3 +125,64 @@ vec_proxy_equal.rastro_flux <- function(x, ...) {
 `%==%.rastro_flux` <- function(x, y) UseMethod("%==%.rastro_flux", y)
 `%==%.rastro_flux.default` <- function(x, y) vec_equal(x, y)
 
+# ARITHMETIC
+vec_arith.rastro_flux <- function(op, x, y, ...) UseMethod("vec_arith.rastro_flux", y)
+vec_arith.rastro_flux.default <- function(op, x, y, ...) stop_incompatible_op(op, x, y)
+vec_arith.rastro_flux.MISSING <- function(op, x, y, ...) {
+    if (op %===% "-") {
+        return(new_flux(-vec_data(x), x %@% "filter", x %@% "unit"))
+    } else if (op %===% "+")
+        return(x)
+    stop_incompatible_op(op, x, y)
+}
+vec_arith.rastro_flux.double <- function(op, x, y, ...) {
+    vec_recycle_common(x, y) %->% c(x, y)
+    data_x <- vec_data(x)
+    switch(
+        op,
+        "+" = new_flux(data_x + y, x %@% "filter", x %@% "unit"),
+        "-" = new_flux(data_x - y, x %@% "filter", x %@% "unit"),
+        "*" = new_flux(data_x * y, x %@% "filter", x %@% "unit"),
+        "/" = new_flux(data_x / y, x %@% "filter", x %@% "unit"),
+        stop_incompatible_op(op, x, y))
+}
+vec_arith.double.rastro_flux <- function(op, x, y, ...) {
+    vec_recycle_common(x, y) %->% c(x, y)
+    data_y <- vec_data(y)
+    switch(
+        op,
+        "+" = new_flux(x + data_y, y %@% "filter", y %@% "unit"),
+        "-" = new_flux(x - data_y, y %@% "filter", y %@% "unit"),
+        "*" = new_flux(x * data_y, y %@% "filter", y %@% "unit"),
+        stop_incompatible_op(op, x, y))
+}
+vec_arith.rastro_flux.rastro_flux <- function(op, x, y, ...) {
+    vec_recycle_common(x, y) %->% c(x, y)
+    vec_ptype_common(x, y) -> ptype
+    data_x <- vec_data(x)
+    data_y <- vec_data(y)
+
+    switch(
+        op,
+        "+" = new_flux(data_x + data_y, ptype %@% "filter", ptype %@% "unit"),
+        "-" = new_flux(data_x - data_y, ptype %@% "filter", ptype %@% "unit"),
+        stop_incompatible_op(op, x, y))
+}
+
+vec_arith.rastro_flux.integer <- function(op, x, y, ...)
+    vec_arith.rastro_degr.double(op, x, vec_cast(y, double()), ...)
+vec_arith.integer.rastro_flux <- function(op, x, y, ...)
+    vec_arith.double.rastro_degr(op, vec_cast(x, double()), y, ...)
+
+vec_math.rastro_flux <- function(.fn, .x, ...) {
+    data_x <- vec_data(.x)
+    switch(.fn,
+           abs = new_flux(abs(data_x), .x %@% "filter", .x %@% "unit"),
+           sign = vec_cast(sign(data_x), integer()),
+           mean = new_degr(mean(data_x), .x %@% "filter", .x %@% "unit"),
+           sum = new_degr(sum(data_x), .x %@% "filter", .x %@% "unit"),
+           is.na = is.na(data_x),
+           is.finite = is.finite(data_x),
+           is.infinite = is.infinite(data_x),
+           abort(glue_fmt_chr("`{.fn}` cannot be applied to <{vec_ptype_full(.x)}>.")))
+}
