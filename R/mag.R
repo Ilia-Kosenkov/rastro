@@ -103,13 +103,10 @@ vec_cast.rastro_mag.rastro_mag <- function(x, to, ..., x_arg = "x", to_arg = "to
             glue_fmt_chr("Filter: `{x_arg}` has `{x_flt}`, `{to_arg}` has `{to_flt}`"),
             glue_fmt_chr("Zero flux: `{x_arg}` has `{format(x_zf)}`, `{to_arg}` has `{format(to_zf)}`")))
 }
-vec_cast.rastro_mag.integer <- function(x, to, ...)
-    new_mag(x, filter = to %@% "filter", zero_flux = to %@% "zero_flux")
-vec_cast.rastro_mag.double <- function(x, to, ...)
+vec_cast.rastro_mag.numeric <- function(x, to, ...)
     new_mag(x, filter = to %@% "filter", zero_flux = to %@% "zero_flux")
 
-vec_cast.double.rastro_mag <- function(x, to, ...) vec_data(x)
-vec_cast.integer.rastro_mag <- function(x, to, ...) vec_cast(vec_data(x), integer())
+vec_cast.numeric.rastro_mag <- function(x, to, ...) vec_data(x)
 
 as_mag <- function(x, filter = NA_character_, zero_flux = NA_real_, ...)
     vec_cast(x, new_mag(filte = filter, zero_flux = zero_flux))
