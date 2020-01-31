@@ -128,10 +128,10 @@ vec_cast.rastro_measure.rastro_measure <- function(x, to, ..., x_arg = "x", to_a
                 " `{to_arg}` is [{get_unit_str(to_u)}]")))
 }
 
-#vec_cast.rastro_measure.numeric <- function(x, to, ...)
-    #new_measure(x, quantity = to %@% "qunatity", unit = to %@% "unit")
+vec_cast.rastro_measure.numeric <- function(x, to, ...)
+    new_measure(x, quantity = to %@% "quantity", unit = to %@% "unit")
 
-#vec_cast.numeric.rastro_measure <- function(x, to, ...) vec_data(x)
+vec_cast.numeric.rastro_measure <- function(x, to, ...) vec_data(x)
 
 # ARITHMETIC
 vec_arith.rastro_measure <- function(op, x, y, ...) UseMethod("vec_arith.rastro_measure", y)
@@ -143,27 +143,27 @@ vec_arith.rastro_measure.MISSING <- function(op, x, y, ...) {
         return(x)
     stop_incompatible_op(op, x, y)
 }
-#vec_arith.rastro_measure.numeric <- function(op, x, y, ...) {
-    #vec_recycle_common(x, y) %->% c(x, y)
-    #data_x <- vec_data(x)
-    #switch(
-        #op,
-        #"+" = new_measure(data_x + y, x %@% "filter", x %@% "zero_flux"),
-        #"-" = new_measure(data_x - y, x %@% "filter", x %@% "zero_flux"),
-        #"*" = new_measure(data_x * y, x %@% "filter", x %@% "zero_flux"),
-        #"/" = new_measure(data_x / y, x %@% "filter", x %@% "zero_flux"),
-        #stop_incompatible_op(op, x, y))
-#}
-#vec_arith.numeric.rastro_measure <- function(op, x, y, ...) {
-    #vec_recycle_common(x, y) %->% c(x, y)
-    #data_y <- vec_data(y)
-    #switch(
-        #op,
-        #"+" = new_measure(x + data_y, y %@% "filter", y %@% "zero_flux"),
-        #"-" = new_measure(x - data_y, y %@% "filter", y %@% "zero_flux"),
-        #"*" = new_measure(x * data_y, y %@% "filter", y %@% "zero_flux"),
-        #stop_incompatible_op(op, x, y))
-#}
+vec_arith.rastro_measure.numeric <- function(op, x, y, ...) {
+    vec_recycle_common(x, y) %->% c(x, y)
+    data_x <- vec_data(x)
+    switch(
+        op,
+        "+" = new_measure(data_x + y, x %@% "quantity", x %@% "unit"),
+        "-" = new_measure(data_x - y, x %@% "quantity", x %@% "unit"),
+        "*" = new_measure(data_x * y, x %@% "quantity", x %@% "unit"),
+        "/" = new_measure(data_x / y, x %@% "quantity", x %@% "unit"),
+        stop_incompatible_op(op, x, y))
+}
+vec_arith.numeric.rastro_measure <- function(op, x, y, ...) {
+    vec_recycle_common(x, y) %->% c(x, y)
+    data_y <- vec_data(y)
+    switch(
+        op,
+        "+" = new_measure(x + data_y, y %@% "quantity", y %@% "unit"),
+        "-" = new_measure(x - data_y, y %@% "quantity", y %@% "unit"),
+        "*" = new_measure(x * data_y, y %@% "quantity", y %@% "unit"),
+        stop_incompatible_op(op, x, y))
+}
 vec_arith.rastro_measure.rastro_measure <- function(op, x, y, ...) {
     vec_recycle_common(x, y) %->% c(x, y)
     if ((op %===% "+") || (op %===% "-")) {
