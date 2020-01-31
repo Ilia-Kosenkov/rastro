@@ -1,5 +1,5 @@
 # CTOR
-new_mag <- function(m = double(), filter = NA_character_, zero_flux = na_rastro_flux()) {
+new_mag <- function(m = double(), filter = NA_character_, zero_flux = na_flux()) {
     filter <- vec_assert(vec_cast(filter, character()), size = 1L)
     zero_flux <- vec_assert(
         vec_cast(
@@ -118,18 +118,13 @@ vec_restore.rastro_mag <- function(x, to, ..., i = NULL) {
     new_mag(x, to %@% "filter", to %@% "zero_flux")
 }
 
+vec_proxy.rastro_mag <- function(x, ...) {
+    attributes(x) <- NULL
+    x
+}
+
 
 # EQUALITY
-vec_proxy_equal.rastro_mag <- function(x, ...) {
-    filter <- x %@% "filter"
-    zero_flux <- x %@% "zero_flux"
-
-    data.frame(
-        mag = vec_data(x),
-        filter = vec_repeat(filter %|% "2", vec_size(x)),
-        zero_flux = vec_repeat(zero_flux %|% new_flux(0), vec_size(x)),
-        flag = 10L * vec_cast(is.na(filter), integer()) + vec_cast(is.na(zero_flux), integer()))
-}
 
 
 `%==%.rastro_mag` <- function(x, y) UseMethod("%==%.rastro_mag", y)

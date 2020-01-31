@@ -80,7 +80,7 @@ vec_arith.rastro_degr.MISSING <- function(op, x, y, ...) {
         return(x)
     stop_incompatible_op(op, x, y)
 }
-vec_arith.rastro_degr.double <- function(op, x, y, ...) {
+vec_arith.rastro_degr.numeric <- function(op, x, y, ...) {
     vec_recycle_common(x, y) %->% c(x, y)
     data_x <- vec_data(x)
     switch(
@@ -91,7 +91,7 @@ vec_arith.rastro_degr.double <- function(op, x, y, ...) {
         "/" = new_degr(data_x / y),
         stop_incompatible_op(op, x, y))
 }
-vec_arith.double.rastro_degr <- function(op, x, y, ...) {
+vec_arith.numeric.rastro_degr <- function(op, x, y, ...) {
     vec_recycle_common(x, y) %->% c(x, y)
     data_y <- vec_data(y)
     switch(
@@ -113,10 +113,10 @@ vec_arith.rastro_degr.rastro_degr <- function(op, x, y, ...) {
         stop_incompatible_op(op, x, y))
 }
 
-vec_arith.rastro_degr.integer <- function(op, x, y, ...)
-    vec_arith.rastro_degr.double(op, x, vec_cast(y, double()), ...)
-vec_arith.integer.rastro_degr <- function(op, x, y, ...)
-    vec_arith.double.rastro_degr(op, vec_cast(x, double()), y, ...)
+#vec_arith.rastro_degr.integer <- function(op, x, y, ...)
+    #vec_arith.rastro_degr.double(op, x, vec_cast(y, double()), ...)
+#vec_arith.integer.rastro_degr <- function(op, x, y, ...)
+    #vec_arith.double.rastro_degr(op, vec_cast(x, double()), y, ...)
 
 vec_math.rastro_degr <- function(.fn, .x, ...) {
     data_x <- vec_data(.x)

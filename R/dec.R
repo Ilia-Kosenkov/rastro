@@ -260,10 +260,10 @@ vec_arith.rastro_dec.rastro_dec <- function(op, x, y, ...) {
         stop_incompatible_op(op, x, y))
 }
 
-vec_arith.rastro_dec.integer <- function(op, x, y, ...)
-    vec_arith.rastro_dec.double(op, x, vec_cast(y, double()), ...)
-vec_arith.integer.rastro_dec <- function(op, x, y, ...)
-    vec_arith.double.rastro_dec(op, ve_cast(x, double()), y, ...)
+#vec_arith.rastro_dec.integer <- function(op, x, y, ...)
+    #vec_arith.rastro_dec.double(op, x, vec_cast(y, double()), ...)
+#vec_arith.integer.rastro_dec <- function(op, x, y, ...)
+    #vec_arith.double.rastro_dec(op, ve_cast(x, double()), y, ...)
 
 
 vec_math.rastro_dec <- function(.fn, .x, ...) {
