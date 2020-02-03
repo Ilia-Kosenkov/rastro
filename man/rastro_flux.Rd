@@ -33,6 +33,7 @@
 \alias{vec_arith.numeric.rastro_flux}
 \alias{vec_arith.rastro_flux.rastro_flux}
 \alias{vec_math.rastro_flux}
+\alias{vec_cast.rastro_mag.rastro_flux}
 \title{Flux}
 \usage{
 new_flux(flux = double(), filter = NA_character_, unit = NA_character_)
@@ -98,6 +99,8 @@ vec_arith.rastro_flux(op, x, y, ...)
 \method{vec_arith.rastro_flux}{rastro_flux}(op, x, y, ...)
 
 vec_math.rastro_flux(.fn, .x, ...)
+
+\method{vec_cast.rastro_mag}{rastro_flux}(x, to, ..., x_arg = "x", to_arg = "to")
 }
 \arguments{
 \item{flux, new_flux}{Flux values.}

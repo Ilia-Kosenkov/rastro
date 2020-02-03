@@ -265,9 +265,12 @@ vec_math.rastro_flux <- function(.fn, .x, ...) {
 
 # FLUX -> NAG conversion
 
-#vec_cast.rastro_mag.rastro_flux <- function(x, to, ..., x_arg = "x", to_arg = "to") {
-    #zf <- to %@% "zero_flux"
-    #x <- vec_cast(x, zf)
+#' @rdname rastro_flux
+#' @method vec_cast.rastro_mag rastro_flux
+#' @export
+vec_cast.rastro_mag.rastro_flux <- function(x, to, ..., x_arg = "x", to_arg = "to") {
+    zf <- to %@% "zero_flux"
+    x <- vec_cast(x, zf)
 
-    #new_mag(-2.5 * log10(vec_data(x) / vec_data(zf)), filter = zf %@% "filter", zero_flux = zf)
-#}
+    new_mag(-2.5 * log10(vec_data(x) / vec_data(zf)), filter = zf %@% "filter", zero_flux = zf)
+}
