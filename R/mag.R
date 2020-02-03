@@ -111,16 +111,6 @@ vec_cast.numeric.rastro_mag <- function(x, to, ...) vec_data(x)
 as_mag <- function(x, filter = NA_character_, zero_flux = NA_real_, ...)
     vec_cast(x, new_mag(filte = filter, zero_flux = zero_flux))
 
-#vec_restore.rastro_mag <- function(x, to, ..., i = NULL) {
-    #new_mag(x, to %@% "filter", to %@% "zero_flux")
-#}
-
-#vec_proxy.rastro_mag <- function(x, ...) {
-    #attributes(x) <- NULL
-    #x
-#}
-
-
 # EQUALITY
 
 

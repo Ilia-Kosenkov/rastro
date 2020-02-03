@@ -96,25 +96,25 @@ vec_cast.rastro_flux.rastro_flux <- function(x, to, ..., x_arg = "x", to_arg = "
             glue_fmt_chr("Unit: `{x_arg}` has `{x_unt}`, `{to_arg}` has `{to_unt}`")))
 }
 
-vec_cast.rastro_flux.integer <- function(x, to, ...)
-    new_flux(x, filter = to %@% "filter", unit = to %@% "unit")
-vec_cast.rastro_flux.double <- function(x, to, ...)
+#vec_cast.rastro_flux.integer <- function(x, to, ...)
+    #new_flux(x, filter = to %@% "filter", unit = to %@% "unit")
+vec_cast.rastro_flux.numeric <- function(x, to, ...)
     new_flux(x, filter = to %@% "filter", unit = to %@% "unit")
 
-vec_cast.double.rastro_flux <- function(x, to, ...) vec_data(x)
-vec_cast.integer.rastro_flux <- function(x, to, ...) vec_cast(vec_data(x), integer())
+vec_cast.numeric.rastro_flux <- function(x, to, ...) vec_data(x)
+#vec_cast.integer.rastro_flux <- function(x, to, ...) vec_cast(vec_data(x), integer())
 
 as_flux <- function(x, filter = NA_character_, unit = NA_real_, ...)
     vec_cast(x, new_flux(filte = filter, unit = unit))
 
-vec_restore.rastro_flux <- function(x, to, ...) {
-    new_flux(x, to %@% "filter", to %@% "unit")
-}
+#vec_restore.rastro_flux <- function(x, to, ...) {
+    #new_flux(x, to %@% "filter", to %@% "unit")
+#}
 
-vec_proxy.rastro_flux <- function(x, ...) {
-    attributes(x) <- NULL
-    x
-}
+#vec_proxy.rastro_flux <- function(x, ...) {
+    #attributes(x) <- NULL
+    #x
+#}
 
 # EQUALITY
 
@@ -132,7 +132,7 @@ vec_arith.rastro_flux.MISSING <- function(op, x, y, ...) {
         return(x)
     stop_incompatible_op(op, x, y)
 }
-vec_arith.rastro_flux.double <- function(op, x, y, ...) {
+vec_arith.rastro_flux.numeric <- function(op, x, y, ...) {
     vec_recycle_common(x, y) %->% c(x, y)
     data_x <- vec_data(x)
     switch(
@@ -143,7 +143,7 @@ vec_arith.rastro_flux.double <- function(op, x, y, ...) {
         "/" = new_flux(data_x / y, x %@% "filter", x %@% "unit"),
         stop_incompatible_op(op, x, y))
 }
-vec_arith.double.rastro_flux <- function(op, x, y, ...) {
+vec_arith.numeric.rastro_flux <- function(op, x, y, ...) {
     vec_recycle_common(x, y) %->% c(x, y)
     data_y <- vec_data(y)
     switch(
@@ -166,10 +166,10 @@ vec_arith.rastro_flux.rastro_flux <- function(op, x, y, ...) {
         stop_incompatible_op(op, x, y))
 }
 
-vec_arith.rastro_flux.integer <- function(op, x, y, ...)
-    vec_arith.rastro_degr.double(op, x, vec_cast(y, double()), ...)
-vec_arith.integer.rastro_flux <- function(op, x, y, ...)
-    vec_arith.double.rastro_degr(op, vec_cast(x, double()), y, ...)
+#vec_arith.rastro_flux.integer <- function(op, x, y, ...)
+    #vec_arith.rastro_degr.double(op, x, vec_cast(y, double()), ...)
+#vec_arith.integer.rastro_flux <- function(op, x, y, ...)
+    #vec_arith.double.rastro_degr(op, vec_cast(x, double()), y, ...)
 
 vec_math.rastro_flux <- function(.fn, .x, ...) {
     data_x <- vec_data(.x)

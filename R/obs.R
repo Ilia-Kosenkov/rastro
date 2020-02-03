@@ -317,15 +317,6 @@ vec_arith.rastro_obs.rastro_obs <- function(op, x, y, ...) {
     item_ptype <- x %@% "item_ptype"
     switch(
         op,
-        #"+" = new_obs(
-            #data_x$obs + data_y$obs,
-            #n_err = vec_cast(sqrt(
-                #vec_cast(data_x$n_err, double()) ^ 2 +
-                #vec_cast(data_y$n_err, double()) ^ 2), item_ptype),
-            #p_err = vec_cast(sqrt(
-                #vec_cast(data_x$p_err, double()) ^ 2 +
-                #vec_cast(data_y$p_err, double()) ^ 2), item_ptype),
-            #item_frmt = common_frmt(x %@% "item_frmt", y %@% "item_frmt")),
         "+" = new_obs(
             data_x$obs + data_y$obs,
             n_err = data_x$n_err + data_y$n_err,
@@ -336,15 +327,6 @@ vec_arith.rastro_obs.rastro_obs <- function(op, x, y, ...) {
             n_err = data_x$n_err + data_y$n_err,
             p_err = data_x$p_err + data_y$p_err,
             item_frmt = common_frmt(x %@% "item_frmt", y %@% "item_frmt")),
-        #"-" = new_obs(
-            #data_x$obs - data_y$obs,
-            #n_err = vec_cast(sqrt(
-                #vec_cast(data_x$n_err, double()) ^ 2 +
-                #vec_cast(data_y$n_err, double()) ^ 2), item_ptype),
-            #p_err = vec_cast(sqrt(
-                #vec_cast(data_x$p_err, double()) ^ 2 +
-                #vec_cast(data_y$p_err, double()) ^ 2), item_ptype),
-            #item_frmt = common_frmt(x %@% "item_frmt", y %@% "item_frmt")),
         stop_incompatible_op(op, x, y))
 }
 
