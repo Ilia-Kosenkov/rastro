@@ -110,7 +110,7 @@ vec_ptype_full.rastro_obs <- function(x, ...) glue_fmt_chr("rastro_obs<{vec_ptyp
 # PTYPE
 vec_ptype2.rastro_obs <- function(x, y, ...) UseMethod("vec_ptype2.rastro_obs", y)
 vec_ptype2.rastro_obs.default <- function(x, y, ..., x_arg = "x", y_arg = "y")
-        vec_default_ptype2(x, y, x_arg = x_arg, y_arg = y_arg)
+        vec_default_ptype2(x, y %T>% print, x_arg = x_arg, y_arg = y_arg)
 vec_ptype2.rastro_obs.rastro_obs <- function(x, y, ...) {
     vec_ptype2(x %@% "item_ptype", y %@% "item_ptype") -> ptype
 
@@ -122,6 +122,36 @@ vec_ptype2.rastro_obs.double <- function(x, y, ...) new_obs(double())
 vec_ptype2.rastro_obs.integer <- function(x, y, ...) new_obs(integer())
 vec_ptype2.integer.rastro_obs <- function(x, y, ...) new_obs(integer())
 vec_ptype2.double.rastro_obs <- function(x, y, ...) new_obs(double())
+vec_ptype2.rastro_obs.data.frame <- function(x, y, ...) {
+    filler <- vec_init(x %@% "item_ptype", 0L)
+
+    df_ptype_1 <- vec_ptype(data.frame(obs = filler, err = filler))
+    df_ptype_2 <- vec_ptype(data.frame(obs = filler, n_err = filler, p_err = filler))
+
+    if (vec_is(vec_ptype2(df_ptype_1, y), df_ptype_1)) {
+        return(df_ptype_1)
+    }
+    else if (vec_is(vec_ptype2(df_ptype_2, y), df_ptype_2)) {
+        return(df_ptype_2)
+    }
+
+    stop_incompatible_type(x, y)
+}
+
+vec_ptype2.data.frame.rastro_obs <- function(x, y, ...) {
+    filler <- vec_init(y %@% "item_ptype", 0L)
+    df_ptype_1 <- vec_ptype(data.frame(obs = filler, err = filler))
+    df_ptype_2 <- vec_ptype(data.frame(obs = filler, n_err = filler, p_err = filler))
+
+    if (vec_is(vec_ptype2(df_ptype_1, x), df_ptype_1)) {
+        return(df_ptype_1)
+    }
+    else if (vec_is(vec_ptype2(df_ptype_2, x), df_ptype_2)) {
+        return(df_ptype_2)
+    }
+
+    stop_incompatible_type(x, y)
+}
 
 is_obs <- function(x, item_ptype)
     vec_is(x, new_obs(vec_init(item_ptype, 0L)))
@@ -158,6 +188,42 @@ vec_cast.rastro_obs.integer <- function(x, to, ...) {
     x <- vec_cast(x, vec_ptype(to %@% "item_ptype"))
 
     new_obs(x, item_frmt = to %@% "item_frmt")
+}
+
+vec_cast.data.frame.rastro_obs <- function(x, to, ...) {
+    ptype <- vec_ptype2(x, to)
+    filler <- vec_init(x %@% "item_ptype", 0L)
+
+    df_ptype_1 <- vec_ptype(data.frame(obs = filler, err = filler))
+    df_ptype_2 <- vec_ptype(data.frame(obs = filler, n_err = filler, p_err = filler))
+
+
+    if (vec_is(vec_ptype2(ptype, df_ptype_1), ptype)) {
+        proxy <- vec_proxy(x)
+        return(vec_cast(data.frame(obs = proxy$obs, err = 0.5 * (proxy$n_err + proxy$p_err)), to))
+    }
+    else if (vec_is(vec_ptype2(ptype, df_ptype_2), ptype)) {
+        proxy <- vec_proxy(x)
+        return(vec_cast(proxy, to))
+    }
+    stop_incompatible_cast(x, to)
+}
+
+vec_cast.rastro_obs.data.frame <- function(x, to, ...) {
+    ptype <- vec_ptype2(x, to)
+    filler <- vec_init(to %@% "item_ptype", 0L)
+
+    df_ptype_1 <- vec_ptype(data.frame(obs = filler, err = filler))
+    df_ptype_2 <- vec_ptype(data.frame(obs = filler, n_err = filler, p_err = filler))
+
+    if (vec_is(vec_ptype2(ptype, df_ptype_1), ptype)) {
+        return(vec_cast(new_obs(x$obs, x$err), to))
+    }
+    else if (vec_is(vec_ptype2(ptype, df_ptype_2), ptype)) {
+        return(vec_cast(new_obs(x$obs, n_err = x$n_err, p_err = x$p_err), to))
+    }
+    stop_incompatible_cast(x, to)
+
 }
 
 as_obs <- function(x) new_obs(x)
@@ -281,12 +347,6 @@ vec_arith.rastro_obs.rastro_obs <- function(op, x, y, ...) {
             #item_frmt = common_frmt(x %@% "item_frmt", y %@% "item_frmt")),
         stop_incompatible_op(op, x, y))
 }
-
-#vec_arith.rastro_obs.integer <- function(op, x, y, ...)
-    #vec_arith.rastro_obs.double(op, x, vec_cast(y, double()), ...)
-#vec_arith.integer.rastro_obs <- function(op, x, y, ...)
-    #vec_arith.double.rastro_obs(op, ve_cast(x, double()), y, ...)
-
 
 #vec_math.rastro_obs <- function(.fn, .x, ...) {
     #switch(.fn,
