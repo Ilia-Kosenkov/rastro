@@ -96,25 +96,16 @@ vec_cast.rastro_flux.rastro_flux <- function(x, to, ..., x_arg = "x", to_arg = "
             glue_fmt_chr("Unit: `{x_arg}` has `{x_unt}`, `{to_arg}` has `{to_unt}`")))
 }
 
-#vec_cast.rastro_flux.integer <- function(x, to, ...)
-    #new_flux(x, filter = to %@% "filter", unit = to %@% "unit")
-vec_cast.rastro_flux.numeric <- function(x, to, ...)
+vec_cast.rastro_flux.integer <- function(x, to, ...)
+    new_flux(x, filter = to %@% "filter", unit = to %@% "unit")
+vec_cast.rastro_flux.double <- function(x, to, ...)
     new_flux(x, filter = to %@% "filter", unit = to %@% "unit")
 
-vec_cast.numeric.rastro_flux <- function(x, to, ...) vec_data(x)
-#vec_cast.integer.rastro_flux <- function(x, to, ...) vec_cast(vec_data(x), integer())
+vec_cast.double.rastro_flux <- function(x, to, ...) vec_data(x)
+vec_cast.integer.rastro_flux <- function(x, to, ...) vec_cast(vec_data(x), integer())
 
 as_flux <- function(x, filter = NA_character_, unit = NA_real_, ...)
-    vec_cast(x, new_flux(filte = filter, unit = unit))
-
-#vec_restore.rastro_flux <- function(x, to, ...) {
-    #new_flux(x, to %@% "filter", to %@% "unit")
-#}
-
-#vec_proxy.rastro_flux <- function(x, ...) {
-    #attributes(x) <- NULL
-    #x
-#}
+    vec_cast(x, new_flux(filter = filter, unit = unit))
 
 # EQUALITY
 
@@ -166,19 +157,14 @@ vec_arith.rastro_flux.rastro_flux <- function(op, x, y, ...) {
         stop_incompatible_op(op, x, y))
 }
 
-#vec_arith.rastro_flux.integer <- function(op, x, y, ...)
-    #vec_arith.rastro_degr.double(op, x, vec_cast(y, double()), ...)
-#vec_arith.integer.rastro_flux <- function(op, x, y, ...)
-    #vec_arith.double.rastro_degr(op, vec_cast(x, double()), y, ...)
-
 vec_math.rastro_flux <- function(.fn, .x, ...) {
     data_x <- vec_data(.x)
     print(.fn)
     switch(.fn,
            abs = new_flux(abs(data_x), .x %@% "filter", .x %@% "unit"),
            sign = vec_cast(sign(data_x), integer()),
-           mean = new_degr(mean(data_x), .x %@% "filter", .x %@% "unit"),
-           sum = new_degr(sum(data_x), .x %@% "filter", .x %@% "unit"),
+           mean = new_flux(mean(data_x), .x %@% "filter", .x %@% "unit"),
+           sum = new_flux(sum(data_x), .x %@% "filter", .x %@% "unit"),
            is.nan = is.nan(data_x),
            is.finite = is.finite(data_x),
            is.infinite = is.infinite(data_x),

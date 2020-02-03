@@ -109,7 +109,7 @@ vec_cast.rastro_mag.numeric <- function(x, to, ...)
 vec_cast.numeric.rastro_mag <- function(x, to, ...) vec_data(x)
 
 as_mag <- function(x, filter = NA_character_, zero_flux = NA_real_, ...)
-    vec_cast(x, new_mag(filte = filter, zero_flux = zero_flux))
+    vec_cast(x, new_mag(filter = filter, zero_flux = zero_flux))
 
 # EQUALITY
 
@@ -172,8 +172,8 @@ vec_math.rastro_mag <- function(.fn, .x, ...) {
     switch(.fn,
            abs = new_mag(abs(data_x), .x %@% "filter", .x %@% "zero_flux"),
            sign = vec_cast(sign(data_x), integer()),
-           mean = new_degr(mean(data_x), .x %@% "filter", .x %@% "zero_flux"),
-           sum = new_degr(sum(data_x), .x %@% "filter", .x %@% "zero_flux"),
+           mean = new_mag(mean(data_x), .x %@% "filter", .x %@% "zero_flux"),
+           sum = new_mag(sum(data_x), .x %@% "filter", .x %@% "zero_flux"),
            is.nan = is.nan(data_x),
            is.finite = is.finite(data_x),
            is.infinite = is.infinite(data_x),

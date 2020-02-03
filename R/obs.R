@@ -52,7 +52,7 @@ na_obs <- function(item_ptype) new_obs(vec_init(item_ptype, 1L))
 format.rastro_obs <- function(
         x,
         format = "{obs} (- {n_err}; + {p_err})",
-        format_eq = "{obs} ± {err}",
+        format_eq = "{obs} U+00B1 {err}",
         format_each = NULL,
         na_string = "NA_rastro_obs",
         ...) {
@@ -110,7 +110,7 @@ vec_ptype_full.rastro_obs <- function(x, ...) glue_fmt_chr("rastro_obs<{vec_ptyp
 # PTYPE
 vec_ptype2.rastro_obs <- function(x, y, ...) UseMethod("vec_ptype2.rastro_obs", y)
 vec_ptype2.rastro_obs.default <- function(x, y, ..., x_arg = "x", y_arg = "y")
-        vec_default_ptype2(x, y %T>% print, x_arg = x_arg, y_arg = y_arg)
+        vec_default_ptype2(x, y, x_arg = x_arg, y_arg = y_arg)
 vec_ptype2.rastro_obs.rastro_obs <- function(x, y, ...) {
     vec_ptype2(x %@% "item_ptype", y %@% "item_ptype") -> ptype
 

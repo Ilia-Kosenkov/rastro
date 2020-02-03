@@ -126,12 +126,12 @@ dec_2_deg <- function(dec) {
 }
 
 angle_add_impl <- function(x, y) {
+    x_deg <- x_min <- x_sec <- y_deg <- y_min <- y_sec <- NULL
     x %->% c(x_deg, x_min, x_sec)
     y %->% c(y_deg, y_min, y_sec)
 
-    vec_recycle_common(x_deg, y_deg) %->% c(x_deg, y_deg)
-    vec_recycle_common(x_min, y_min) %->% c(x_min, y_min)
-    vec_recycle_common(x_sec, y_sec) %->% c(x_sec, y_sec)
+    vec_recycle_common(x_deg, y_deg, x_min, y_min, x_sec, y_sec) %->%
+        c(x_deg, y_deg, x_min, y_min, x_sec, y_sec)
 
     normalize_dec_impl(x_deg + y_deg, x_min + y_min, x_sec + y_sec)
 }
@@ -141,7 +141,7 @@ angle_add_impl <- function(x, y) {
 # FORMAT
 format.rastro_dec <- function(
         x,
-        format = "{sign:%1s}{deg:%02d}°{min:%02d}'{sec:%02d}\".{fff:%03.0f}",
+        format = "{sign:%1s}{deg:%02d}\u00B0{min:%02d}'{i_sec:%02d}\".{fff:%03.0f}",
         na_string = "NA_rastro_dec",
         ...) {
     sign_val <- field(x, "sign")
@@ -152,8 +152,9 @@ format.rastro_dec <- function(
     sec <- field(x, "sec")
 
     i_sec <- vec_cast(floor(sec), integer())
-    fff <- 100 * (sec - i_sec)
-    sec <- i_sec
+    fff <- 1000 * (sec - i_sec)
+
+    i_sec
 
     result <- glue_fmt_chr(format)
     nas <- is.na(deg) | is.na(min) | is.na(sec)
