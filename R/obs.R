@@ -1,3 +1,19 @@
+#' @title Observation
+#' @rdname rastro_obs
+#' @param obs Observations.
+#' @param err,p_err,n_err Symmetrical (\code{err}) or a pair of positive (\code{p_err}) and
+#' negative (\code{n_err}) errors.
+#' @param item_frmt A desired format string to control the output.
+#' @param x,y \code{vec_ptype2*} arguments.
+#' @param to \code{vec_cast} argument.
+#' @param x_arg,y_arg \code{vec_ptype2*} and \code{vec_cast*} error message variable names.
+#' @param op Arithmetic functions/operators.
+#' @param .x \code{vec_arith*} argument.
+#' @param format,na_string,format_eq,format_each \code{glue} flromat strings (support interpolation).
+#' @param item_ptype Ptype of the contained data.
+#' @param ... Additional parameters.
+#'
+#' @export
 new_obs <- function(
     obs,
     err = missing_arg(),
@@ -46,9 +62,13 @@ new_obs <- function(
              class = "rastro_obs")
 }
 
+#' @rdname rastro_obs
+#' @export
 na_obs <- function(item_ptype) new_obs(vec_init(item_ptype, 1L))
 
 # FORMAT
+#' @rdname rastro_obs
+#' @export
 format.rastro_obs <- function(
         x,
         format = "{obs} (- {n_err}; + {p_err})",
@@ -88,7 +108,6 @@ format.rastro_obs <- function(
 }
 
 # METHODS
-
 common_frmt <- function(x_frmt, y_frmt) {
 
     x_frmt <- vec_cast(x_frmt, character())
@@ -104,13 +123,25 @@ common_frmt <- function(x_frmt, y_frmt) {
 }
 
 # METADATA
+#' @rdname rastro_obs
+#' @export
 vec_ptype_abbr.rastro_obs <- function(x, ...) glue_fmt_chr("obs<{vec_ptype_abbr(x %@% 'item_ptype')}>")
+#' @rdname rastro_obs
+#' @export
 vec_ptype_full.rastro_obs <- function(x, ...) glue_fmt_chr("rastro_obs<{vec_ptype_full(x %@% 'item_ptype')}>")
 
 # PTYPE
+#' @rdname rastro_obs
+#' @export
 vec_ptype2.rastro_obs <- function(x, y, ...) UseMethod("vec_ptype2.rastro_obs", y)
+#' @rdname rastro_obs
+#' @method vec_ptype2.rastro_obs default
+#' @export
 vec_ptype2.rastro_obs.default <- function(x, y, ..., x_arg = "x", y_arg = "y")
         vec_default_ptype2(x, y, x_arg = x_arg, y_arg = y_arg)
+#' @rdname rastro_obs
+#' @method vec_ptype2.rastro_obs rastro_obs
+#' @export
 vec_ptype2.rastro_obs.rastro_obs <- function(x, y, ...) {
     vec_ptype2(x %@% "item_ptype", y %@% "item_ptype") -> ptype
 
@@ -118,10 +149,25 @@ vec_ptype2.rastro_obs.rastro_obs <- function(x, y, ...) {
 
     new_obs(vec_init(ptype, 0L), item_frmt = frmt)
 }
+#' @rdname rastro_obs
+#' @method vec_ptype2.rastro_obs double
+#' @export
 vec_ptype2.rastro_obs.double <- function(x, y, ...) new_obs(double())
+#' @rdname rastro_obs
+#' @method vec_ptype2.rastro_obs integer
+#' @export
 vec_ptype2.rastro_obs.integer <- function(x, y, ...) new_obs(integer())
+#' @rdname rastro_obs
+#' @method vec_ptype2.integer rastro_obs
+#' @export
 vec_ptype2.integer.rastro_obs <- function(x, y, ...) new_obs(integer())
+#' @rdname rastro_obs
+#' @method vec_ptype2.double rastro_obs
+#' @export
 vec_ptype2.double.rastro_obs <- function(x, y, ...) new_obs(double())
+#' @rdname rastro_obs
+#' @method vec_ptype2.rastro_obs data.frame
+#' @export
 vec_ptype2.rastro_obs.data.frame <- function(x, y, ...) {
     filler <- vec_init(x %@% "item_ptype", 0L)
 
@@ -138,6 +184,9 @@ vec_ptype2.rastro_obs.data.frame <- function(x, y, ...) {
     stop_incompatible_type(x, y)
 }
 
+#' @rdname rastro_obs
+#' @method vec_ptype2.data.frame rastro_obs
+#' @export
 vec_ptype2.data.frame.rastro_obs <- function(x, y, ...) {
     filler <- vec_init(y %@% "item_ptype", 0L)
     df_ptype_1 <- vec_ptype(data.frame(obs = filler, err = filler))
@@ -153,13 +202,23 @@ vec_ptype2.data.frame.rastro_obs <- function(x, y, ...) {
     stop_incompatible_type(x, y)
 }
 
+#' @rdname rastro_obs
+#' @export
 is_obs <- function(x, item_ptype)
     vec_is(x, new_obs(vec_init(item_ptype, 0L)))
 
 
 # CAST
+#' @rdname rastro_obs
+#' @export
 vec_cast.rastro_obs <- function(x, to, ...) UseMethod("vec_cast.rastro_obs")
+#' @rdname rastro_obs
+#' @method vec_cast.rastro_obs default
+#' @export
 vec_cast.rastro_obs.default <- function(x, to, ...) vec_default_cast(x, to)
+#' @rdname rastro_obs
+#' @method vec_cast.rastro_obs rastro_obs
+#' @export
 vec_cast.rastro_obs.rastro_obs <- function(x, to, ...) {
     vec_cast(x %@% "item_ptype", to %@% "item_ptype") -> ptype
     new_obs(
@@ -169,6 +228,9 @@ vec_cast.rastro_obs.rastro_obs <- function(x, to, ...) {
         item_frmt = (to %@% "item_frmt") %|% (x %@% "item_frmt"))
 }
 
+#' @rdname rastro_obs
+#' @method vec_cast.rastro_obs double
+#' @export
 vec_cast.rastro_obs.double <- function(x, to, ...) {
     item_ptype <- to %@% "item_ptype"
     new_obs(
@@ -178,18 +240,27 @@ vec_cast.rastro_obs.double <- function(x, to, ...) {
         item_frmt = to %@% "item_frmt")
 }
 
+#' @rdname rastro_obs
+#' @method vec_cast.rastro_obs double
+#' @export
 vec_cast.rastro_obs.double <- function(x, to, ...) {
     x <- vec_cast(x, vec_ptype(to %@% "item_ptype"))
 
     new_obs(x, item_frmt = to %@% "item_frmt")
 }
 
+#' @rdname rastro_obs
+#' @method vec_cast.rastro_obs integer
+#' @export
 vec_cast.rastro_obs.integer <- function(x, to, ...) {
     x <- vec_cast(x, vec_ptype(to %@% "item_ptype"))
 
     new_obs(x, item_frmt = to %@% "item_frmt")
 }
 
+#' @rdname rastro_obs
+#' @method vec_cast.data.frame rastro_obs
+#' @export
 vec_cast.data.frame.rastro_obs <- function(x, to, ...) {
     ptype <- vec_ptype2(x, to)
     filler <- vec_init(x %@% "item_ptype", 0L)
@@ -209,6 +280,9 @@ vec_cast.data.frame.rastro_obs <- function(x, to, ...) {
     stop_incompatible_cast(x, to)
 }
 
+#' @rdname rastro_obs
+#' @method vec_cast.rastro_obs data.frame
+#' @export
 vec_cast.rastro_obs.data.frame <- function(x, to, ...) {
     ptype <- vec_ptype2(x, to)
     filler <- vec_init(to %@% "item_ptype", 0L)
@@ -225,9 +299,12 @@ vec_cast.rastro_obs.data.frame <- function(x, to, ...) {
     stop_incompatible_cast(x, to)
 
 }
-
+#' @rdname rastro_obs
+#' @export
 as_obs <- function(x) new_obs(x)
 
+#' @rdname rastro_obs
+#' @export
 vec_restore.rastro_obs <- function(x, to, ...) {
     item_ptype <- to %@% "item_ptype"
 
@@ -237,7 +314,8 @@ vec_restore.rastro_obs <- function(x, to, ...) {
     new_obs(obs = obs, n_err = n_err, p_err = p_err, item_frmt = to %@% "item_frmt")
 }
 
-
+#' @rdname rastro_obs
+#' @export
 vec_proxy.rastro_obs <- function(x, ...) {
     obs <- vec_proxy(field(x, "obs"))
     n_err <- vec_proxy(field(x, "n_err"))
@@ -246,12 +324,22 @@ vec_proxy.rastro_obs <- function(x, ...) {
 }
 
 # EQUALITY
+#' @rdname rastro_obs
+#' @export
 vec_proxy_compare.rastro_obs <- function(x, ...) {
     vec_proxy_compare(field(x, "obs"))
 }
 
+#' @rdname rastro_obs
+#' @export
 `%==%.rastro_obs` <- function(x, y) UseMethod("%==%.rastro_obs", y)
+#' @rdname rastro_obs
+#' @method %==%.rastro_obs default
+#' @export
 `%==%.rastro_obs.default` <- function(x, y) vec_equal(x, y) %|% FALSE
+#' @rdname rastro_obs
+#' @method %==%.rastro_obs rastro_obs
+#' @export
 `%==%.rastro_obs.rastro_obs` <- function(x, y) {
     vec_recycle_common(x, y) %->% c(x, y)
     if ((x %@% "item_ptype") %!==% (y %@% "item_ptype"))
@@ -265,8 +353,16 @@ vec_proxy_compare.rastro_obs <- function(x, ...) {
 
 
 # ARITHMETIC
+#' @rdname rastro_obs
+#' @export
 vec_arith.rastro_obs <- function(op, x, y, ...) UseMethod("vec_arith.rastro_obs", y)
+#' @rdname rastro_obs
+#' @method vec_arith.rastro_obs default
+#' @export
 vec_arith.rastro_obs.default <- function(op, x, y, ...) stop_incompatible_op(op, x, y)
+#' @rdname rastro_obs
+#' @method vec_arith.rastro_obs MISSING
+#' @export
 vec_arith.rastro_obs.MISSING <- function(op, x, y, ...) {
     if (op %==% "-") {
         data <- vec_data(x)
@@ -280,6 +376,9 @@ vec_arith.rastro_obs.MISSING <- function(op, x, y, ...) {
 
     stop_incompatible_op(op, x, y)
 }
+#' @rdname rastro_obs
+#' @method vec_arith.rastro_obs numeric
+#' @export
 vec_arith.rastro_obs.numeric <- function(op, x, y, ...) {
     vec_recycle_common(x, y) %->% c(x, y)
     data_x <- vec_data(x)
@@ -295,6 +394,9 @@ vec_arith.rastro_obs.numeric <- function(op, x, y, ...) {
 
     stop_incompatible_op(op, x, y)
 }
+#' @rdname rastro_obs
+#' @method vec_arith.numeric rastro_obs
+#' @export
 vec_arith.numeric.rastro_obs <- function(op, x, y, ...) {
     vec_recycle_common(x, y) %->% c(x, y)
     data_y <- vec_data(y)
@@ -310,6 +412,9 @@ vec_arith.numeric.rastro_obs <- function(op, x, y, ...) {
 
     stop_incompatible_op(op, x, y)
 }
+#' @rdname rastro_obs
+#' @method vec_arith.rastro_obs rastro_obs
+#' @export
 vec_arith.rastro_obs.rastro_obs <- function(op, x, y, ...) {
     vec_recycle_common(x, y) %->% c(x, y)
     data_x <- vec_data(x)
