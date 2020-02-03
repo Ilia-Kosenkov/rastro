@@ -3,7 +3,7 @@
 #' @param deg Degrees to store.
 #' @param x,y \code{vec_ptype2*} arguments.
 #' @param to \code{vec_cast} argument.
-#' @param x_arg,y_arg \code{vec_ptype2} error message variable names.
+#' @param x_arg,y_arg \code{vec_ptype2*} error message variable names.
 #' @param op,.fn Arithmetic functions/operators.
 #' @param .x \code{vec_arith*} argument.
 #' @param format,na_string \code{glue} flromat strings (support interpolation).

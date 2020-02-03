@@ -1,4 +1,19 @@
 # CTOR
+#' @title Flux
+#' @rdname rastro_flux
+#'
+#' @param flux,new_flux Flux values.
+#' @param filter An optional filter.
+#' @param unit Am optional measurement units.
+#' @param x,y \code{vec_ptype2*} arguments.
+#' @param to \code{vec_cast} argument.
+#' @param x_arg,y_arg,to_arg \code{vec_ptype2*} and \code{vec_cast*} error message variable names.
+#' @param op,.fn Arithmetic functions/operators.
+#' @param .x \code{vec_arith*} argument.
+#' @param format,na_string \code{glue} flromat strings (support interpolation).
+#' @param ... Additional parameters.
+#'
+#' @export
 new_flux <- function(flux = double(), filter = NA_character_, unit = NA_character_) {
     filter <- vec_assert(vec_cast(filter, character()), size = 1L)
     unit <- vec_assert(vec_cast(unit, character()), size = 1L)
@@ -8,9 +23,13 @@ new_flux <- function(flux = double(), filter = NA_character_, unit = NA_characte
     new_vctr(f, filter = filter, unit = unit, class = "rastro_flux")
 }
 
+#' @rdname rastro_flux
+#' @export
 na_flux <- function() new_flux(NA_real_)
 
 # FORMAT
+#' @rdname rastro_flux
+#' @export
 format.rastro_flux <- function(x,
     format = "{flux:%.3e}",
     na_string = "NA_rastro_flux_",
@@ -21,20 +40,34 @@ format.rastro_flux <- function(x,
     return(result)
 }
 
+#' @rdname rastro_flux
+#' @export
 obj_print_footer.rastro_flux <- function(x, ...) {
     cat(glue_fmt_chr("Unit: {(x %@% 'unit')}"))
 }
 
 # METADATA
+#' @rdname rastro_flux
+#' @export
 vec_ptype_abbr.rastro_flux <- function(x, ...)
     glue_fmt_chr("flux<{(x %@% 'filter') %|% '?'}>")
+#' @rdname rastro_flux
+#' @export
 vec_ptype_full.rastro_flux <- function(x, ...)
     glue_fmt_chr("rastro_flux<{(x %@% 'filter') %|% '?'}>")
 
 # PTYPE
+#' @rdname rastro_flux
+#' @export
 vec_ptype2.rastro_flux <- function(x, y, ...) UseMethod("vec_ptype2.rastro_flux", y)
+#' @rdname rastro_flux
+#' @method vec_ptype2.rastro_flux default
+#' @export
 vec_ptype2.rastro_flux.default <- function(x, y, ..., x_arg = "x", y_arg = "y")
         vec_default_ptype2(x, y, x_arg = x_arg, y_arg = y_arg)
+#' @rdname rastro_flux
+#' @method vec_ptype2.rastro_flux rastro_flux
+#' @export
 vec_ptype2.rastro_flux.rastro_flux <- function(x, y, ..., x_arg = "x", y_arg = "y") {
     x_flt <- x %@% "filter"
     x_unt <- x %@% "unit"
@@ -54,26 +87,49 @@ vec_ptype2.rastro_flux.rastro_flux <- function(x, y, ..., x_arg = "x", y_arg = "
             glue_fmt_chr("Unit: `{x_arg}` has `{x_unt}`, `{y_arg}` has `{y_unt}`")),
         x_arg = x_arg, y_arg = y_arg, ...)
 }
+#' @rdname rastro_flux
+#' @method vec_ptype2.rastro_flux double
+#' @export
 vec_ptype2.rastro_flux.double <- function(x, y, ...)
     new_flux(filter = x %@% "filter", unit = x %@% "unit")
+#' @rdname rastro_flux
+#' @method vec_ptype2.rastro_flux integer
+#' @export
 vec_ptype2.rastro_flux.integer <- function(x, y, ...)
     new_flux(filter = x %@% "filter", unit = x %@% "unit")
+#' @rdname rastro_flux
+#' @method vec_ptype2.integer rastro_flux
+#' @export
 vec_ptype2.integer.rastro_flux <- function(x, y, ...)
     new_flux(filter = y %@% "filter", unit = y %@% "unit")
+#' @rdname rastro_flux
+#' @method vec_ptype2.double rastro_flux
+#' @export
 vec_ptype2.double.rastro_flux <- function(x, y, ...)
     new_flux(filter = y %@% "filter", unit = y %@% "unit")
 
-
+#' @rdname rastro_flux
+#' @export
 is_flux <- function(x, filter = NA_character_, unit = NA_real_)
     vec_is(x, new_flux(filter = filter, unit = unit))
 
+#' @rdname rastro_flux
+#' @export
 is.na.rastro_flux <- function(x) is.na(vec_data(x))
 
 # CAST
+#' @rdname rastro_flux
+#' @export
 vec_cast.rastro_flux <- function(x, to, ..., x_arg = "x", to_arg = "to")
     UseMethod("vec_cast.rastro_flux")
+#' @rdname rastro_flux
+#' @method vec_cast.rastro_flux default
+#' @export
 vec_cast.rastro_flux.default <- function(x, to, ..., x_arg = "x", to_arg = "to")
     vec_default_cast(x, to, x_arg = x_arg, to_arg = to_arg)
+#' @rdname rastro_flux
+#' @method vec_cast.rastro_flux rastro_flux
+#' @export
 vec_cast.rastro_flux.rastro_flux <- function(x, to, ..., x_arg = "x", to_arg = "to") {
     x_flt <- x %@% "filter"
     x_unt <- x %@% "unit"
@@ -96,26 +152,52 @@ vec_cast.rastro_flux.rastro_flux <- function(x, to, ..., x_arg = "x", to_arg = "
             glue_fmt_chr("Unit: `{x_arg}` has `{x_unt}`, `{to_arg}` has `{to_unt}`")))
 }
 
+#' @rdname rastro_flux
+#' @method vec_cast.rastro_flux integer
+#' @export
 vec_cast.rastro_flux.integer <- function(x, to, ...)
     new_flux(x, filter = to %@% "filter", unit = to %@% "unit")
+#' @rdname rastro_flux
+#' @method vec_cast.rastro_flux double
+#' @export
 vec_cast.rastro_flux.double <- function(x, to, ...)
     new_flux(x, filter = to %@% "filter", unit = to %@% "unit")
 
+#' @rdname rastro_flux
+#' @method vec_cast.double rastro_flux
+#' @export
 vec_cast.double.rastro_flux <- function(x, to, ...) vec_data(x)
+#' @rdname rastro_flux
+#' @method vec_cast.integer rastro_flux
+#' @export
 vec_cast.integer.rastro_flux <- function(x, to, ...) vec_cast(vec_data(x), integer())
 
+#' @rdname rastro_flux
+#' @export
 as_flux <- function(x, filter = NA_character_, unit = NA_real_, ...)
     vec_cast(x, new_flux(filter = filter, unit = unit))
 
 # EQUALITY
 
-
+#' @rdname rastro_flux
+#' @export
 `%==%.rastro_flux` <- function(x, y) UseMethod("%==%.rastro_flux", y)
+#' @rdname rastro_flux
+#' @method %==%.rastro_flux default
+#' @export
 `%==%.rastro_flux.default` <- function(x, y) vec_equal(x, y) %|% FALSE
 
 # ARITHMETIC
+#' @rdname rastro_flux
+#' @export
 vec_arith.rastro_flux <- function(op, x, y, ...) UseMethod("vec_arith.rastro_flux", y)
+#' @rdname rastro_flux
+#' @method vec_arith.rastro_flux default
+#' @export
 vec_arith.rastro_flux.default <- function(op, x, y, ...) stop_incompatible_op(op, x, y)
+#' @rdname rastro_flux
+#' @method vec_arith.rastro_flux MISSING
+#' @export
 vec_arith.rastro_flux.MISSING <- function(op, x, y, ...) {
     if (op %===% "-") {
         return(new_flux(-vec_data(x), x %@% "filter", x %@% "unit"))
@@ -123,6 +205,9 @@ vec_arith.rastro_flux.MISSING <- function(op, x, y, ...) {
         return(x)
     stop_incompatible_op(op, x, y)
 }
+#' @rdname rastro_flux
+#' @method vec_arith.rastro_flux numeric
+#' @export
 vec_arith.rastro_flux.numeric <- function(op, x, y, ...) {
     vec_recycle_common(x, y) %->% c(x, y)
     data_x <- vec_data(x)
@@ -134,6 +219,9 @@ vec_arith.rastro_flux.numeric <- function(op, x, y, ...) {
         "/" = new_flux(data_x / y, x %@% "filter", x %@% "unit"),
         stop_incompatible_op(op, x, y))
 }
+#' @rdname rastro_flux
+#' @method vec_arith.numeric rastro_flux
+#' @export
 vec_arith.numeric.rastro_flux <- function(op, x, y, ...) {
     vec_recycle_common(x, y) %->% c(x, y)
     data_y <- vec_data(y)
@@ -144,6 +232,9 @@ vec_arith.numeric.rastro_flux <- function(op, x, y, ...) {
         "*" = new_flux(x * data_y, y %@% "filter", y %@% "unit"),
         stop_incompatible_op(op, x, y))
 }
+#' @rdname rastro_flux
+#' @method vec_arith.rastro_flux rastro_flux
+#' @export
 vec_arith.rastro_flux.rastro_flux <- function(op, x, y, ...) {
     vec_recycle_common(x, y) %->% c(x, y)
     vec_ptype_common(x, y) -> ptype
@@ -156,7 +247,8 @@ vec_arith.rastro_flux.rastro_flux <- function(op, x, y, ...) {
         "-" = new_flux(data_x - data_y, ptype %@% "filter", ptype %@% "unit"),
         stop_incompatible_op(op, x, y))
 }
-
+#' @rdname rastro_flux
+#' @export
 vec_math.rastro_flux <- function(.fn, .x, ...) {
     data_x <- vec_data(.x)
     print(.fn)
@@ -173,9 +265,9 @@ vec_math.rastro_flux <- function(.fn, .x, ...) {
 
 # FLUX -> NAG conversion
 
-vec_cast.rastro_mag.rastro_flux <- function(x, to, ..., x_arg = "x", to_arg = "to") {
-    zf <- to %@% "zero_flux"
-    x <- vec_cast(x, zf)
+#vec_cast.rastro_mag.rastro_flux <- function(x, to, ..., x_arg = "x", to_arg = "to") {
+    #zf <- to %@% "zero_flux"
+    #x <- vec_cast(x, zf)
 
-    new_mag(-2.5 * log10(vec_data(x) / vec_data(zf)), filter = zf %@% "filter", zero_flux = zf)
-}
+    #new_mag(-2.5 * log10(vec_data(x) / vec_data(zf)), filter = zf %@% "filter", zero_flux = zf)
+#}

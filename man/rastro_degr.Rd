@@ -129,7 +129,7 @@ vec_math.rastro_degr(.fn, .x, ...)
 
 \item{...}{Additional parameters.}
 
-\item{x_arg, y_arg}{\code{vec_ptype2} error message variable names.}
+\item{x_arg, y_arg}{\code{vec_ptype2*} error message variable names.}
 
 \item{to}{\code{vec_cast} argument.}
 
