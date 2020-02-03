@@ -16,8 +16,8 @@ ByteCompile: true
 Imports:
 	rlang,
 	vctrs,
-	purrr,
 	primitiveR
 Suggests:
 	magrittr,
 	testthat
+RoxygenNote: 7.0.2
