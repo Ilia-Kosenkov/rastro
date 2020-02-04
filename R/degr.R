@@ -24,7 +24,7 @@ na_degr <- function() new_degr(NA_real_)
 #' @export
 format.rastro_degr <- function(
     x,
-    format = "{deg}\u00B0",
+    format = "{deg:%.4g}\u00B0",
     na_string = "NA_rastro_degr_",
     ...) {
     deg <- vec_data(x)
@@ -168,6 +168,8 @@ as_degr <- function(x) vec_cast(x, new_degr())
 `%==%.rastro_degr.default` <- function(x, y) vec_equal(x, y) %|% FALSE
 
 # ARITHMETIC
+#' @rdname rastro_degr
+#' @export
 vec_arith.rastro_degr <- function(op, x, y, ...) UseMethod("vec_arith.rastro_degr", y)
 #' @rdname rastro_degr
 #' @method vec_arith.rastro_degr default

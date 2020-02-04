@@ -34,6 +34,7 @@
 \alias{as_degr}
 \alias{\%==\%.rastro_degr}
 \alias{\%==\%.rastro_degr.default}
+\alias{vec_arith.rastro_degr}
 \alias{vec_arith.rastro_degr.default}
 \alias{vec_arith.rastro_degr.MISSING}
 \alias{vec_arith.rastro_degr.numeric}
@@ -46,7 +47,7 @@ new_degr(deg = double())
 
 na_degr()
 
-\method{format}{rastro_degr}(x, format = "{deg}°", na_string = "NA_rastro_degr_", ...)
+\method{format}{rastro_degr}(x, format = "{deg:\%.4g}Â°", na_string = "NA_rastro_degr_", ...)
 
 vec_ptype_abbr.rastro_degr(x, ...)
 
@@ -107,6 +108,8 @@ as_degr(x)
 `\%==\%.rastro_degr`(x, y)
 
 \method{\%==\%.rastro_degr}{default}(x, y)
+
+vec_arith.rastro_degr(op, x, y, ...)
 
 \method{vec_arith.rastro_degr}{default}(op, x, y, ...)
 

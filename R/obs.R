@@ -72,7 +72,7 @@ na_obs <- function(item_ptype) new_obs(vec_init(item_ptype, 1L))
 format.rastro_obs <- function(
         x,
         format = "{obs} (- {n_err}; + {p_err})",
-        format_eq = "{obs} U+00B1 {err}",
+        format_eq = "{obs} \U00B1 {err}",
         format_each = NULL,
         na_string = "NA_rastro_obs",
         ...) {

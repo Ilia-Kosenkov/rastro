@@ -51,7 +51,7 @@ na_obs(item_ptype)
 \method{format}{rastro_obs}(
   x,
   format = "{obs} (- {n_err}; + {p_err})",
-  format_eq = "{obs} U+00B1 {err}",
+  format_eq = "{obs} ± {err}",
   format_each = NULL,
   na_string = "NA_rastro_obs",
   ...
