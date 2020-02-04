@@ -122,6 +122,8 @@ is_mag <- function(x, filter = NA_character_, zero_flux = NA_real_)
 
 
 # CAST
+#' @rdname rastro_mag
+#' @export
 vec_cast.rastro_mag <- function(x, to, ..., x_arg = "x", to_arg = "to")
     UseMethod("vec_cast.rastro_mag")
 #' @rdname rastro_mag
@@ -191,6 +193,8 @@ as_mag <- function(x, filter = NA_character_, zero_flux = NA_real_, ...)
 `%==%.rastro_mag.default` <- function(x, y) vec_equal(x, y) %|% FALSE
 
 # ARITHMETIC
+#' @rdname rastro_mag
+#' @export
 vec_arith.rastro_mag <- function(op, x, y, ...) UseMethod("vec_arith.rastro_mag", y)
 #' @rdname rastro_mag
 #' @method vec_arith.rastro_mag default

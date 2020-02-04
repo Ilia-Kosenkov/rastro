@@ -44,9 +44,9 @@ na_flux()
 
 obj_print_footer.rastro_flux(x, ...)
 
-vec_ptype_abbr.rastro_flux(x, ...)
+\method{vec_ptype_abbr}{rastro_flux}(x, ...)
 
-vec_ptype_full.rastro_flux(x, ...)
+\method{vec_ptype_full}{rastro_flux}(x, ...)
 
 vec_ptype2.rastro_flux(x, y, ...)
 

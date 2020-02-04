@@ -57,9 +57,9 @@ na_obs(item_ptype)
   ...
 )
 
-vec_ptype_abbr.rastro_obs(x, ...)
+\method{vec_ptype_abbr}{rastro_obs}(x, ...)
 
-vec_ptype_full.rastro_obs(x, ...)
+\method{vec_ptype_full}{rastro_obs}(x, ...)
 
 vec_ptype2.rastro_obs(x, y, ...)
 

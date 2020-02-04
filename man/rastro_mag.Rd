@@ -15,6 +15,7 @@
 \alias{vec_ptype2.integer.rastro_mag}
 \alias{vec_ptype2.double.rastro_mag}
 \alias{is_mag}
+\alias{vec_cast.rastro_mag}
 \alias{vec_cast.rastro_mag.default}
 \alias{vec_cast.rastro_mag.rastro_mag}
 \alias{vec_cast.rastro_mag.integer}
@@ -24,6 +25,7 @@
 \alias{as_mag}
 \alias{\%==\%.rastro_mag}
 \alias{\%==\%.rastro_mag.default}
+\alias{vec_arith.rastro_mag}
 \alias{vec_arith.rastro_mag.default}
 \alias{vec_arith.rastro_mag.MISSING}
 \alias{vec_arith.rastro_mag.numeric}
@@ -41,9 +43,9 @@ na_mag()
 
 obj_print_footer.rastro_mag(x, ...)
 
-vec_ptype_abbr.rastro_mag(x, ...)
+\method{vec_ptype_abbr}{rastro_mag}(x, ...)
 
-vec_ptype_full.rastro_mag(x, ...)
+\method{vec_ptype_full}{rastro_mag}(x, ...)
 
 vec_ptype2.rastro_mag(x, y, ...)
 
@@ -60,6 +62,8 @@ vec_ptype2.rastro_mag(x, y, ...)
 \method{vec_ptype2.double}{rastro_mag}(x, y, ...)
 
 is_mag(x, filter = NA_character_, zero_flux = NA_real_)
+
+vec_cast.rastro_mag(x, to, ..., x_arg = "x", to_arg = "to")
 
 \method{vec_cast.rastro_mag}{default}(x, to, ..., x_arg = "x", to_arg = "to")
 
@@ -78,6 +82,8 @@ as_mag(x, filter = NA_character_, zero_flux = NA_real_, ...)
 `\%==\%.rastro_mag`(x, y)
 
 \method{\%==\%.rastro_mag}{default}(x, y)
+
+vec_arith.rastro_mag(op, x, y, ...)
 
 \method{vec_arith.rastro_mag}{default}(op, x, y, ...)
 

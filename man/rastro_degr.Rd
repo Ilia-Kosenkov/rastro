@@ -49,9 +49,9 @@ na_degr()
 
 \method{format}{rastro_degr}(x, format = "{deg:\%.4g}Â°", na_string = "NA_rastro_degr_", ...)
 
-vec_ptype_abbr.rastro_degr(x, ...)
+\method{vec_ptype_abbr}{rastro_degr}(x, ...)
 
-vec_ptype_full.rastro_degr(x, ...)
+\method{vec_ptype_full}{rastro_degr}(x, ...)
 
 vec_ptype2.rastro_degr(x, y, ...)
 
