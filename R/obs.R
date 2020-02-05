@@ -450,7 +450,7 @@ vec_arith.rastro_obs.rastro_obs <- function(op, x, y, ...) {
 cast_rastro_obs <- function(x, to, p_err, n_err, ...)
     UseMethod("cast_rastro_obs", to)
 
-cast_rastro_obs.default <- function(x, to, p_er, n_err, ...)
+cast_rastro_obs.default <- function(x, to, p_err, n_err, ...)
     new_obs(vec_cast(x, to), p_err = vec_cast(p_err, to), n_err = vec_cast(n_err, to))
 
 cast_rastro_obs.rastro_mag <- function(x, to, p_err, n_err, ...)
@@ -458,6 +458,12 @@ cast_rastro_obs.rastro_mag <- function(x, to, p_err, n_err, ...)
 
 cast_rastro_obs.rastro_flux <- function(x, to, p_err, n_err, ...)
     UseMethod("cast_rastro_obs.rastro_flux", x)
+
+cast_rastro_obs.rastro_mag.default <- function(x, to, p_err, n_err, ...)
+    new_obs(vec_cast(x, to), p_err = vec_cast(p_err, to), n_err = vec_cast(n_err, to))
+
+cast_rastro_obs.rastro_flux.default <- function(x, to, p_err, n_err, ...)
+    new_obs(vec_cast(x, to), p_err = vec_cast(p_err, to), n_err = vec_cast(n_err, to))
 
 cast_rastro_obs.rastro_mag.rastro_flux <- function(x, to, p_err, n_err, ...) {
     new_obs(
