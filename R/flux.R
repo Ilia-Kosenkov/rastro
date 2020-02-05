@@ -185,7 +185,8 @@ as_flux <- function(x, filter = NA_character_, unit = NA_real_, ...)
 #' @rdname rastro_flux
 #' @method %==%.rastro_flux default
 #' @export
-`%==%.rastro_flux.default` <- function(x, y) vec_equal(x, y) %|% FALSE
+`%==%.rastro_flux.default` <- function(x, y)
+    vec_data(x) %==% vec_data(y)
 
 # ARITHMETIC
 #' @rdname rastro_flux
@@ -245,13 +246,14 @@ vec_arith.rastro_flux.rastro_flux <- function(op, x, y, ...) {
         op,
         "+" = new_flux(data_x + data_y, ptype %@% "filter", ptype %@% "unit"),
         "-" = new_flux(data_x - data_y, ptype %@% "filter", ptype %@% "unit"),
+        "/" = data_x / data_y,
         stop_incompatible_op(op, x, y))
 }
 #' @rdname rastro_flux
 #' @export
 vec_math.rastro_flux <- function(.fn, .x, ...) {
     data_x <- vec_data(.x)
-    print(.fn)
+
     switch(.fn,
            abs = new_flux(abs(data_x), .x %@% "filter", .x %@% "unit"),
            sign = vec_cast(sign(data_x), integer()),

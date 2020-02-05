@@ -221,11 +221,15 @@ vec_cast.rastro_obs.default <- function(x, to, ...) vec_default_cast(x, to)
 #' @export
 vec_cast.rastro_obs.rastro_obs <- function(x, to, ...) {
     vec_cast(x %@% "item_ptype", to %@% "item_ptype") -> ptype
-    new_obs(
-        vec_cast(field(x, "obs"), ptype),
-        n_err = vec_cast(field(x, "n_err"), ptype),
-        p_err = vec_cast(field(x, "p_err"), ptype),
-        item_frmt = (to %@% "item_frmt") %|% (x %@% "item_frmt"))
+
+    proxy <- vec_proxy(x)
+    cast_rastro_obs(proxy$obs, ptype, proxy$p_err, proxy$n_err)
+
+    #new_obs(
+        #vec_cast(field(x, "obs"), ptype),
+        #n_err = vec_cast(field(x, "n_err"), ptype),
+        #p_err = vec_cast(field(x, "p_err"), ptype),
+        #item_frmt = (to %@% "item_frmt") %|% (x %@% "item_frmt"))
 }
 
 #' @rdname rastro_obs
@@ -342,8 +346,6 @@ vec_proxy_compare.rastro_obs <- function(x, ...) {
 #' @export
 `%==%.rastro_obs.rastro_obs` <- function(x, y) {
     vec_recycle_common(x, y) %->% c(x, y)
-    if ((x %@% "item_ptype") %!==% (y %@% "item_ptype"))
-        return(vec_repeat(FALSE, vec_size(x)))
 
     proxy_x <- vec_proxy_equal(x)
     proxy_y <- vec_proxy_equal(y)
@@ -443,3 +445,30 @@ vec_arith.rastro_obs.rastro_obs <- function(op, x, y, ...) {
            #abs = cc(!!!vmap_if(.x, ~ .x < new_obs(0), ~ -.x)),
            #vec_math_base(.fn, .x, ...))
 #}
+
+# SPECIAL CASTS
+cast_rastro_obs <- function(x, to, p_err, n_err, ...)
+    UseMethod("cast_rastro_obs", to)
+
+cast_rastro_obs.default <- function(x, to, p_er, n_err, ...)
+    new_obs(vec_cast(x, to), p_err = vec_cast(p_err, to), n_err = vec_cast(n_err, to))
+
+cast_rastro_obs.rastro_mag <- function(x, to, p_err, n_err, ...)
+    UseMethod("cast_rastro_obs.rastro_mag", x)
+
+cast_rastro_obs.rastro_flux <- function(x, to, p_err, n_err, ...)
+    UseMethod("cast_rastro_obs.rastro_flux", x)
+
+cast_rastro_obs.rastro_mag.rastro_flux <- function(x, to, p_err, n_err, ...) {
+    new_obs(
+        vec_cast(x, to),
+        n_err = vec_cast(abs(-2.5 / log(10) * (p_err / x)), to),
+        p_err = vec_cast(abs(-2.5 / log(10) * (n_err / x)), to))
+}
+
+cast_rastro_obs.rastro_flux.rastro_mag <- function(x, to, p_err, n_err, ...) {
+    new_obs(
+        vec_cast(x, to),
+        n_err = vec_cast(abs(vec_cast(x, to) * log(10) / 2.5 * vec_cast(p_err, double())), to),
+        p_err = vec_cast(abs(vec_cast(x, to) * log(10) / 2.5 * vec_cast(n_err, double())), to))
+}

@@ -2,3 +2,7 @@
 measured\.[Rr]
 frac\.[Rr]
 tools\.[Rr]
+.*\.tar\.gz
+.*[Rr]x?proj
+.*Compile\.R
+.*\.sln

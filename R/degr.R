@@ -165,7 +165,8 @@ as_degr <- function(x) vec_cast(x, new_degr())
 #' @rdname rastro_degr
 #' @method %==%.rastro_degr default
 #' @export
-`%==%.rastro_degr.default` <- function(x, y) vec_equal(x, y) %|% FALSE
+`%==%.rastro_degr.default` <- function(x, y)
+    vec_data(x) %==% vec_data(y)
 
 # ARITHMETIC
 #' @rdname rastro_degr

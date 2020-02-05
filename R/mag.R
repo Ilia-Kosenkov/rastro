@@ -190,7 +190,8 @@ as_mag <- function(x, filter = NA_character_, zero_flux = NA_real_, ...)
 #' @rdname rastro_mag
 #' @method %==%.rastro_mag default
 #' @export
-`%==%.rastro_mag.default` <- function(x, y) vec_equal(x, y) %|% FALSE
+`%==%.rastro_mag.default` <- function(x, y)
+    vec_data(x) %==% vec_data(y)
 
 # ARITHMETIC
 #' @rdname rastro_mag
