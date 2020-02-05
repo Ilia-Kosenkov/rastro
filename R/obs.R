@@ -426,13 +426,31 @@ vec_arith.rastro_obs.rastro_obs <- function(op, x, y, ...) {
         op,
         "+" = new_obs(
             data_x$obs + data_y$obs,
-            n_err = data_x$n_err + data_y$n_err,
-            p_err = data_x$p_err + data_y$p_err,
+            n_err = sqrt(data_x$n_err * data_x$n_err + data_y$n_err * data_y$n_err),
+            p_err = sqrt(data_x$p_err * data_x$p_err + data_y$p_err * data_y$p_err),
             item_frmt = common_frmt(x %@% "item_frmt", y %@% "item_frmt")),
         "-" = new_obs(
             data_x$obs + data_y$obs,
-            n_err = data_x$n_err + data_y$n_err,
-            p_err = data_x$p_err + data_y$p_err,
+            n_err = sqrt(data_x$n_err * data_x$n_err + data_y$p_err * data_y$p_err),
+            p_err = sqrt(data_x$p_err * data_x$p_err + data_y$n_err * data_y$n_err),
+            item_frmt = common_frmt(x %@% "item_frmt", y %@% "item_frmt")),
+        "*" = new_obs(
+            data_x$obs * data_y$obs,
+            n_err = sqrt(data_y$obs * data_y$obs * data_x$n_err * data_x$n_err +
+                         data_x$obs * data_x$obs * data_y$n_err * data_y$n_err),
+            p_err = sqrt(data_y$obs * data_y$obs * data_x$p_err * data_x$p_err +
+                         data_x$obs * data_x$obs * data_y$p_err * data_y$p_err),
+            item_frmt = common_frmt(x %@% "item_frmt", y %@% "item_frmt")),
+        "/" = new_obs(
+            data_x$obs / data_y$obs,
+            n_err = abs(data_x$obs / data_y$obs) *
+                sqrt(
+                    data_x$n_err * data_x$n_err / (data_y$obs * data_y$obs) +
+                    data_y$p_err * data_y$p_err / (data_y$obs * data_y$obs)),
+            p_err = abs(data_x$obs / data_y$obs) *
+                sqrt(
+                    data_x$p_err * data_x$p_err / (data_y$obs * data_y$obs) +
+                    data_y$n_err * data_y$n_err / (data_y$obs * data_y$obs)),
             item_frmt = common_frmt(x %@% "item_frmt", y %@% "item_frmt")),
         stop_incompatible_op(op, x, y))
 }
