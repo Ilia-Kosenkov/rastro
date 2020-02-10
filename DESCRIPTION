@@ -1,6 +1,6 @@
 Package: rastro
 Title: Astronomical tools
-Version: 0.0.11
+Version: 0.0.12
 Authors@R: 
     person(given = "Ilia",
            family = "Kosenkov",
@@ -16,7 +16,8 @@ ByteCompile: true
 Imports:
 	rlang,
 	vctrs,
-	primitiveR
+	primitiveR,
+	tibble
 Suggests:
 	magrittr,
 	testthat

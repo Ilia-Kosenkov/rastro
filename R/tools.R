@@ -14,3 +14,17 @@ reg_sub <- function(text, pattern) {
             },
             .else = ~NA_character_)
 }
+
+#' @title Tibble methods for comaptibility
+#' @rdname tbl_df
+#' @param x,y Vectors to test type/cast.
+#' @param ... Additional parameters
+#' @export
+vec_ptype2.tbl_df <- function(x, y, ...)
+    UseMethod("vec_ptype2.tbl_df", y)
+
+#' @rdname tbl_df
+#' @method vec_ptype2.tbl_df default
+#' @export
+vec_ptype2.tbl_df.default <- function(x, y, ...)
+    vec_default_ptype2(x, y, ...)

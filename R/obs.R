@@ -168,39 +168,52 @@ vec_ptype2.double.rastro_obs <- function(x, y, ...) new_obs(double())
 #' @rdname rastro_obs
 #' @method vec_ptype2.rastro_obs data.frame
 #' @export
-vec_ptype2.rastro_obs.data.frame <- function(x, y, ...) {
+vec_ptype2.rastro_obs.data.frame <- function(x, y, ...,  x_arg = "x", y_arg = "y") {
     filler <- vec_init(x %@% "item_ptype", 0L)
 
     df_ptype_1 <- vec_ptype(data.frame(obs = filler, err = filler))
     df_ptype_2 <- vec_ptype(data.frame(obs = filler, n_err = filler, p_err = filler))
 
-    if (vec_is(vec_ptype2(df_ptype_1, y), df_ptype_1)) {
+    if (vec_is(y, df_ptype_1)) {
         return(df_ptype_1)
     }
-    else if (vec_is(vec_ptype2(df_ptype_2, y), df_ptype_2)) {
+    else if (vec_is(y, df_ptype_2)) {
         return(df_ptype_2)
     }
 
-    stop_incompatible_type(x, y)
+    stop_incompatible_type(x, y, x_arg = x_arg, y_arg = y_arg, ...)
+}
+#' @rdname rastro_obs
+#' @method vec_ptype2.rastro_obs tbl_df
+#' @export
+vec_ptype2.rastro_obs.tbl_df <- function(x, y, ..., x_arg = "x", y_arg = "y") {
+    filler <- vec_init(x %@% "item_ptype", 0L)
+
+    df_ptype_1 <- vec_ptype(tibble(obs = filler, err = filler))
+    df_ptype_2 <- vec_ptype(tibble(obs = filler, n_err = filler, p_err = filler))
+
+    if (vec_is(y, df_ptype_1)) {
+        return(df_ptype_1)
+    }
+    else if (vec_is(y, df_ptype_2)) {
+        return(df_ptype_2)
+    }
+
+    stop_incompatible_type(x, y, x_arg = x_arg, y_arg = y_arg, ...)
 }
 
 #' @rdname rastro_obs
 #' @method vec_ptype2.data.frame rastro_obs
 #' @export
-vec_ptype2.data.frame.rastro_obs <- function(x, y, ...) {
-    filler <- vec_init(y %@% "item_ptype", 0L)
-    df_ptype_1 <- vec_ptype(data.frame(obs = filler, err = filler))
-    df_ptype_2 <- vec_ptype(data.frame(obs = filler, n_err = filler, p_err = filler))
+vec_ptype2.data.frame.rastro_obs <- function(x, y, ..., x_arg = "x", y_arg = "y")
+    vec_ptype2.rastro_obs.data.frame(y, x, ..., x_arg = y_arg, y_arg = x_arg)
 
-    if (vec_is(vec_ptype2(df_ptype_1, x), df_ptype_1)) {
-        return(df_ptype_1)
-    }
-    else if (vec_is(vec_ptype2(df_ptype_2, x), df_ptype_2)) {
-        return(df_ptype_2)
-    }
 
-    stop_incompatible_type(x, y)
-}
+#' @rdname rastro_obs
+#' @method vec_ptype2.tbl_df rastro_obs
+#' @export
+vec_ptype2.tbl_df.rastro_obs <- function(x, y, ..., x_arg = "x", y_arg = "y")
+    vec_ptype2.rastro_obs.tbl_df(y, x, ..., x_arg = y_arg, y_arg = x_arg)
 
 #' @rdname rastro_obs
 #' @export
@@ -394,6 +407,32 @@ vec_arith.rastro_obs.numeric <- function(op, x, y, ...) {
                 p_err = vec_arith(op, data_x$p_err, y),
                 item_frmt = x %@% "item_frmt"))
 
+    y <- vec_cast(y, integer())
+
+    if ((op %===% "^") && (y %===% 1L))
+        return(new_obs(
+               data_x$obs ^ 1L,
+               n_err = data_x$n_err / log(data_x$obs),
+               p_err = data_x$p_err / log(data_x$obs),
+               item_frmt = x %@% "item_frmt"))
+
+    if ((op %===% "^") && ((y %% 1L) %===% 0)) {
+        err_1 <- abs(y * data_x$n_err * data_x$obs ^ (y - 1L))
+        err_2 <- abs(y * data_x$p_err * data_x$obs ^ (y - 1L))
+
+        idx <- y < 0
+        n_err <- err_1
+        n_err[idx] <- err_2[idx]
+        p_err <- err_2
+        p_err[idx] <- err_1[idx]
+
+        return(new_obs(
+               data_x$obs ^ y,
+               n_err = n_err, # Switch sides if power is negative?
+               p_err = p_err, #
+               item_frmt = x %@% "item_frmt"))
+    }
+
     stop_incompatible_op(op, x, y)
 }
 #' @rdname rastro_obs
@@ -430,7 +469,7 @@ vec_arith.rastro_obs.rastro_obs <- function(op, x, y, ...) {
             p_err = sqrt(data_x$p_err * data_x$p_err + data_y$p_err * data_y$p_err),
             item_frmt = common_frmt(x %@% "item_frmt", y %@% "item_frmt")),
         "-" = new_obs(
-            data_x$obs + data_y$obs,
+            data_x$obs - data_y$obs,
             n_err = sqrt(data_x$n_err * data_x$n_err + data_y$p_err * data_y$p_err),
             p_err = sqrt(data_x$p_err * data_x$p_err + data_y$n_err * data_y$n_err),
             item_frmt = common_frmt(x %@% "item_frmt", y %@% "item_frmt")),
@@ -455,14 +494,29 @@ vec_arith.rastro_obs.rastro_obs <- function(op, x, y, ...) {
         stop_incompatible_op(op, x, y))
 }
 
-#vec_math.rastro_obs <- function(.fn, .x, ...) {
-    #switch(.fn,
-           #sin = sin(dec_2_deg(.x) / 180 * pi),
-           #cos = cos(dec_2_deg(.x) / 180 * pi),
-           #tan = tan(dec_2_deg(.x) / 180 * pi),
-           #abs = cc(!!!vmap_if(.x, ~ .x < new_obs(0), ~ -.x)),
-           #vec_math_base(.fn, .x, ...))
-#}
+vec_math.rastro_obs <- function(.fn, .x, ...) {
+    data <- vec_data(.x)
+    switch(.fn,
+        sqrt = {
+            obs <- sqrt(data$obs)
+            new_obs(
+                obs,
+                p_err = vec_cast(0.5 * data$p_err / obs, obs),
+                n_err = vec_cast(0.5 * data$n_err / obs, obs))
+        },
+        sign = vec_cast(sign(data$obs), integer()),
+        abs = {
+            idx <- data$obs < 0
+            n_err <- data$n_err
+            p_err <- data$p_err
+            n_err[idx] <- data$p_err[idx]
+            p_err[idx] <- data$n_err[idx]
+            new_obs(abs(data$obs), n_err = n_err, p_err = p_err, item_frmt = .x %@% "item_frmt")
+        },
+        abort(
+            glue_fmt_chr("Function `{.fn}` is not supported by <{vec_ptype_full(.x)}>"),
+            vec_c("rastro_math_unsupported", "rastro_error")))
+}
 
 # SPECIAL CASTS
 cast_rastro_obs <- function(x, to, p_err, n_err, ...)
