@@ -14,7 +14,9 @@
 \alias{vec_ptype2.integer.rastro_obs}
 \alias{vec_ptype2.double.rastro_obs}
 \alias{vec_ptype2.rastro_obs.data.frame}
+\alias{vec_ptype2.rastro_obs.tbl_df}
 \alias{vec_ptype2.data.frame.rastro_obs}
+\alias{vec_ptype2.tbl_df.rastro_obs}
 \alias{is_obs}
 \alias{vec_cast.rastro_obs}
 \alias{vec_cast.rastro_obs.default}
@@ -22,7 +24,11 @@
 \alias{vec_cast.rastro_obs.double}
 \alias{vec_cast.rastro_obs.integer}
 \alias{vec_cast.data.frame.rastro_obs}
+\alias{vec_cast.tbl_df.rastro_obs}
 \alias{vec_cast.rastro_obs.data.frame}
+\alias{vec_cast.rastro_obs.tbl_df}
+\alias{as.data.frame.rastro_obs}
+\alias{as_tibble.rastro_obs}
 \alias{as_obs}
 \alias{vec_restore.rastro_obs}
 \alias{vec_proxy.rastro_obs}
@@ -75,9 +81,13 @@ vec_ptype2.rastro_obs(x, y, ...)
 
 \method{vec_ptype2.double}{rastro_obs}(x, y, ...)
 
-\method{vec_ptype2.rastro_obs}{data.frame}(x, y, ...)
+\method{vec_ptype2.rastro_obs}{data.frame}(x, y, ..., x_arg = "x", y_arg = "y")
 
-\method{vec_ptype2.data.frame}{rastro_obs}(x, y, ...)
+\method{vec_ptype2.rastro_obs}{tbl_df}(x, y, ..., x_arg = "x", y_arg = "y")
+
+\method{vec_ptype2.data.frame}{rastro_obs}(x, y, ..., x_arg = "x", y_arg = "y")
+
+\method{vec_ptype2.tbl_df}{rastro_obs}(x, y, ..., x_arg = "x", y_arg = "y")
 
 is_obs(x, item_ptype)
 
@@ -95,7 +105,15 @@ vec_cast.rastro_obs(x, to, ...)
 
 \method{vec_cast.data.frame}{rastro_obs}(x, to, ...)
 
+\method{vec_cast.tbl_df}{rastro_obs}(x, to, ...)
+
 \method{vec_cast.rastro_obs}{data.frame}(x, to, ...)
+
+\method{vec_cast.rastro_obs}{tbl_df}(x, to, ...)
+
+\method{as.data.frame}{rastro_obs}(x, ..., two_sided = FALSE)
+
+\method{as_tibble}{rastro_obs}(x, ..., two_sided = FALSE)
 
 as_obs(x)
 
@@ -142,6 +160,8 @@ negative (\code{n_err}) errors.}
 \item{x_arg, y_arg}{\code{vec_ptype2*} and \code{vec_cast*} error message variable names.}
 
 \item{to}{\code{vec_cast} argument.}
+
+\item{two_sided}{Controls if both errors should be present in the converted \code{data.frame}/\code{tibble}.}
 
 \item{op}{Arithmetic functions/operators.}
 
