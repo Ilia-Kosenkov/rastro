@@ -314,7 +314,7 @@ vec_cast.tbl_df.rastro_obs <- function(x, to, ...) {
     }
     else if (vec_is(ptype, df_ptype_2)) {
         proxy <- vec_proxy(x)
-        return(vec_cast(proxy, to))
+        return(vec_cast(as_tibble(proxy), to))
     }
     stop_incompatible_cast(x, to)
 }
@@ -338,6 +338,27 @@ vec_cast.rastro_obs.data.frame <- function(x, to, ...) {
     stop_incompatible_cast(x, to)
 
 }
+
+#' @rdname rastro_obs
+#' @method vec_cast.rastro_obs tbl_df
+#' @export
+vec_cast.rastro_obs.tbl_df <- function(x, to, ...) {
+    ptype <- vec_ptype2(x, to)
+    filler <- vec_init(to %@% "item_ptype", 0L)
+
+    df_ptype_1 <- vec_ptype(tibble(obs = filler, err = filler))
+    df_ptype_2 <- vec_ptype(tibble(obs = filler, n_err = filler, p_err = filler))
+
+    if (vec_is(ptype, df_ptype_1)) {
+        return(vec_cast(new_obs(x$obs, x$err), to))
+    }
+    else if (vec_is(ptype, df_ptype_2)) {
+        return(vec_cast(new_obs(x$obs, n_err = x$n_err, p_err = x$p_err), to))
+    }
+    stop_incompatible_cast(x, to)
+
+}
+
 #' @rdname rastro_obs
 #' @export
 as_obs <- function(x) new_obs(x)
