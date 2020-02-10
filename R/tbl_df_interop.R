@@ -16,6 +16,12 @@ vec_ptype2.tbl_df.default <- function(x, y, ...)
     vec_default_ptype2(x, y, ...)
 
 #' @rdname tbl_df
+#' @method vec_ptype2.tbl_df data.frame
+#' @export
+vec_ptype2.tbl_df.data.frame <- function(x, y, ...)
+    vec_ptype2(as.data.frame(x), y, ...)
+
+#' @rdname tbl_df
 #' @method vec_ptype2.tbl_df tbl_df
 #' @export
 vec_ptype2.tbl_df.tbl_df <- function(x, y, ...) {
@@ -32,6 +38,12 @@ vec_cast.tbl_df <- function(x, to, ...)
 #' @export
 vec_cast.tbl_df.default <- function(x, to, ...)
     vec_default_cast(x, to)
+
+#' @rdname tbl_df
+#' @method vec_cast.tbl_df data.frame
+#' @export
+vec_cast.tbl_df.data.frame <- function(x, to, ...)
+    vec_cast(as_tibble(x), to)
 
 #' @rdname tbl_df
 #' @method vec_cast.tbl_df tbl_df

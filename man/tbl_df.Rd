@@ -3,9 +3,11 @@
 \name{vec_ptype2.tbl_df}
 \alias{vec_ptype2.tbl_df}
 \alias{vec_ptype2.tbl_df.default}
+\alias{vec_ptype2.tbl_df.data.frame}
 \alias{vec_ptype2.tbl_df.tbl_df}
 \alias{vec_cast.tbl_df}
 \alias{vec_cast.tbl_df.default}
+\alias{vec_cast.tbl_df.data.frame}
 \alias{vec_cast.tbl_df.tbl_df}
 \title{Tibble methods for comaptibility}
 \usage{
@@ -13,11 +15,15 @@ vec_ptype2.tbl_df(x, y, ...)
 
 \method{vec_ptype2.tbl_df}{default}(x, y, ...)
 
+\method{vec_ptype2.tbl_df}{data.frame}(x, y, ...)
+
 \method{vec_ptype2.tbl_df}{tbl_df}(x, y, ...)
 
 vec_cast.tbl_df(x, to, ...)
 
 \method{vec_cast.tbl_df}{default}(x, to, ...)
+
+\method{vec_cast.tbl_df}{data.frame}(x, to, ...)
 
 \method{vec_cast.tbl_df}{tbl_df}(x, to, ...)
 }
