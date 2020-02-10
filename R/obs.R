@@ -12,6 +12,7 @@
 #' @param format,na_string,format_eq,format_each \code{glue} flromat strings (support interpolation).
 #' @param item_ptype Ptype of the contained data.
 #' @param ... Additional parameters.
+#' @param two_sided Controls if both errors should be present in the converted \code{data.frame}/\code{tibble}.
 #'
 #' @export
 new_obs <- function(
@@ -191,7 +192,6 @@ vec_ptype2.rastro_obs.tbl_df <- function(x, y, ..., x_arg = "x", y_arg = "y") {
 
     df_ptype_1 <- vec_ptype(tibble(obs = filler, err = filler))
     df_ptype_2 <- vec_ptype(tibble(obs = filler, n_err = filler, p_err = filler))
-
     if (vec_is(y, df_ptype_1)) {
         return(df_ptype_1)
     }
@@ -279,7 +279,6 @@ vec_cast.data.frame.rastro_obs <- function(x, to, ...) {
     df_ptype_1 <- vec_ptype(data.frame(obs = filler, err = filler))
     df_ptype_2 <- vec_ptype(data.frame(obs = filler, n_err = filler, p_err = filler))
 
-
     if (vec_is(ptype, df_ptype_1)) {
         proxy <- vec_proxy(x)
         return(vec_cast(data.frame(obs = proxy$obs, err = 0.5 * (proxy$n_err + proxy$p_err)), to))
@@ -301,7 +300,6 @@ vec_cast.tbl_df.rastro_obs <- function(x, to, ...) {
 
     df_ptype_1 <- vec_ptype(tibble(obs = filler, err = filler))
     df_ptype_2 <- vec_ptype(tibble(obs = filler, n_err = filler, p_err = filler))
-
 
     if (vec_is(ptype, df_ptype_1)) {
         proxy <- vec_proxy(x)
@@ -357,6 +355,35 @@ vec_cast.rastro_obs.tbl_df <- function(x, to, ...) {
     }
     stop_incompatible_cast(x, to)
 
+}
+
+#' @rdname rastro_obs
+#' @method as.data.frame rastro_obs
+#' @export
+as.data.frame.rastro_obs <- function(x, ..., two_sided = FALSE) {
+    item_ptype <- x %@% "item_ptype"
+    filler <- vec_init(item_ptype, 0L)
+
+    if (two_sided)
+        df <- data.frame(obs = filler, n_err = filler, p_err = filler)
+    else
+        df <- data.frame(obs = filler, err = filler)
+
+    vec_cast(x, df)
+}
+
+#' @rdname rastro_obs
+#' @export
+as_tibble.rastro_obs <- function(x, ..., two_sided = FALSE) {
+    item_ptype <- x %@% "item_ptype"
+    filler <- vec_init(item_ptype, 0L)
+
+    if (two_sided)
+        tbl <- tibble(obs = filler, n_err = filler, p_err = filler)
+    else
+        tbl <- tibble(obs = filler, err = filler)
+
+    vec_cast(x, tbl)
 }
 
 #' @rdname rastro_obs
