@@ -251,6 +251,8 @@ vec_arith.rastro_mag.rastro_mag <- function(op, x, y, ...) {
         op,
         "+" = new_mag(data_x + data_y, ptype %@% "filter", ptype %@% "zero_flux"),
         "-" = new_mag(data_x - data_y, ptype %@% "filter", ptype %@% "zero_flux"),
+        "*" = data_x * data_y,
+        "/" = data_x / data_y,
         stop_incompatible_op(op, x, y))
 }
 
@@ -258,15 +260,17 @@ vec_arith.rastro_mag.rastro_mag <- function(op, x, y, ...) {
 #' @export
 vec_math.rastro_mag <- function(.fn, .x, ...) {
     data_x <- vec_data(.x)
+
     switch(.fn,
            abs = new_mag(abs(data_x), .x %@% "filter", .x %@% "zero_flux"),
            sign = vec_cast(sign(data_x), integer()),
            mean = new_mag(mean(data_x), .x %@% "filter", .x %@% "zero_flux"),
            sum = new_mag(sum(data_x), .x %@% "filter", .x %@% "zero_flux"),
+           sqrt = sqrt(data_x),
            is.nan = is.nan(data_x),
            is.finite = is.finite(data_x),
            is.infinite = is.infinite(data_x),
-           abort(glue_fmt_chr("`{.fn}` cannot be applied to <{vec_ptype_full(.x)}>.")))
+           vec_math_base(.fn, .x, ...))
 }
 
 

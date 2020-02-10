@@ -225,6 +225,8 @@ vec_arith.rastro_degr.rastro_degr <- function(op, x, y, ...) {
         op,
         "+" = new_degr(data_x + data_y),
         "-" = new_degr(data_x + data_y),
+        "*" = data_x * data_y,
+        "/" = data_x / data_y,
         stop_incompatible_op(op, x, y))
 }
 

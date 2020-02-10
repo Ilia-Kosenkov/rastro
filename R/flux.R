@@ -246,6 +246,7 @@ vec_arith.rastro_flux.rastro_flux <- function(op, x, y, ...) {
         op,
         "+" = new_flux(data_x + data_y, ptype %@% "filter", ptype %@% "unit"),
         "-" = new_flux(data_x - data_y, ptype %@% "filter", ptype %@% "unit"),
+        "*" = data_x * data_y,
         "/" = data_x / data_y,
         stop_incompatible_op(op, x, y))
 }
@@ -259,10 +260,11 @@ vec_math.rastro_flux <- function(.fn, .x, ...) {
            sign = vec_cast(sign(data_x), integer()),
            mean = new_flux(mean(data_x), .x %@% "filter", .x %@% "unit"),
            sum = new_flux(sum(data_x), .x %@% "filter", .x %@% "unit"),
+           sqrt = sqrt(data_x),
            is.nan = is.nan(data_x),
            is.finite = is.finite(data_x),
            is.infinite = is.infinite(data_x),
-           abort(glue_fmt_chr("`{.fn}` cannot be applied to <{vec_ptype_full(.x)}>.")))
+           vec_math_base(.fn, .x, ...))
 }
 
 # FLUX -> NAG conversion
