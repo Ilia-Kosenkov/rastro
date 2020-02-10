@@ -4,6 +4,7 @@ if (interactive()) {
     library(rlang)
     library(vctrs)
     library(primitiveR)
+    library(tibble)
 
     #if (!exists("compile_src"))
         #compile_src <<- function() {

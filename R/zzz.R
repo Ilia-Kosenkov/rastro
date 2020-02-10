@@ -15,5 +15,5 @@
 #'
 #' @importFrom primitiveR   %->% glue_fmt_chr assert vmap_if cc %==% %===% %!=% %!==% are_equal_f
 #' @importFrom primitiveR   vmap_pt vmap vmap2 %&% len vec_item_ptype
-#' @importFrom tibble       tibble
+#' @importFrom tibble       tibble as_tibble
 NULL

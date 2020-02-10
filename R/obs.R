@@ -237,12 +237,6 @@ vec_cast.rastro_obs.rastro_obs <- function(x, to, ...) {
 
     proxy <- vec_proxy(x)
     cast_rastro_obs(proxy$obs, ptype, proxy$p_err, proxy$n_err)
-
-    #new_obs(
-        #vec_cast(field(x, "obs"), ptype),
-        #n_err = vec_cast(field(x, "n_err"), ptype),
-        #p_err = vec_cast(field(x, "p_err"), ptype),
-        #item_frmt = (to %@% "item_frmt") %|% (x %@% "item_frmt"))
 }
 
 #' @rdname rastro_obs
@@ -286,11 +280,39 @@ vec_cast.data.frame.rastro_obs <- function(x, to, ...) {
     df_ptype_2 <- vec_ptype(data.frame(obs = filler, n_err = filler, p_err = filler))
 
 
-    if (vec_is(vec_ptype2(ptype, df_ptype_1), ptype)) {
+    if (vec_is(ptype, df_ptype_1)) {
         proxy <- vec_proxy(x)
         return(vec_cast(data.frame(obs = proxy$obs, err = 0.5 * (proxy$n_err + proxy$p_err)), to))
     }
-    else if (vec_is(vec_ptype2(ptype, df_ptype_2), ptype)) {
+    else if (vec_is(ptype, df_ptype_2)) {
+        proxy <- vec_proxy(x)
+        return(vec_cast(proxy, to))
+    }
+    stop_incompatible_cast(x, to)
+}
+
+#' @rdname rastro_obs
+#' @method vec_cast.tbl_df rastro_obs
+#' @export
+vec_cast.tbl_df.rastro_obs <- function(x, to, ...) {
+    ptype <- vec_ptype2(x, to)
+    item_ptype <- x %@% "item_ptype"
+    filler <- vec_init(item_ptype, 0L)
+
+    df_ptype_1 <- vec_ptype(tibble(obs = filler, err = filler))
+    df_ptype_2 <- vec_ptype(tibble(obs = filler, n_err = filler, p_err = filler))
+
+
+    if (vec_is(ptype, df_ptype_1)) {
+        proxy <- vec_proxy(x)
+        return(
+            vec_cast(
+                tibble(
+                    obs = proxy$obs,
+                    err = vec_cast(0.5 * (proxy$n_err + proxy$p_err), item_ptype)),
+                to))
+    }
+    else if (vec_is(ptype, df_ptype_2)) {
         proxy <- vec_proxy(x)
         return(vec_cast(proxy, to))
     }
@@ -307,10 +329,10 @@ vec_cast.rastro_obs.data.frame <- function(x, to, ...) {
     df_ptype_1 <- vec_ptype(data.frame(obs = filler, err = filler))
     df_ptype_2 <- vec_ptype(data.frame(obs = filler, n_err = filler, p_err = filler))
 
-    if (vec_is(vec_ptype2(ptype, df_ptype_1), ptype)) {
+    if (vec_is(ptype, df_ptype_1)) {
         return(vec_cast(new_obs(x$obs, x$err), to))
     }
-    else if (vec_is(vec_ptype2(ptype, df_ptype_2), ptype)) {
+    else if (vec_is(ptype, df_ptype_2)) {
         return(vec_cast(new_obs(x$obs, n_err = x$n_err, p_err = x$p_err), to))
     }
     stop_incompatible_cast(x, to)
