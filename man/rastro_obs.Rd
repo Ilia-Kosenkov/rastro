@@ -42,6 +42,7 @@
 \alias{vec_arith.rastro_obs.numeric}
 \alias{vec_arith.numeric.rastro_obs}
 \alias{vec_arith.rastro_obs.rastro_obs}
+\alias{vec_math.rastro_obs}
 \title{Observation}
 \usage{
 new_obs(
@@ -140,6 +141,8 @@ vec_arith.rastro_obs(op, x, y, ...)
 \method{vec_arith.numeric}{rastro_obs}(op, x, y, ...)
 
 \method{vec_arith.rastro_obs}{rastro_obs}(op, x, y, ...)
+
+vec_math.rastro_obs(.fn, .x, ...)
 }
 \arguments{
 \item{obs}{Observations.}
@@ -164,6 +167,8 @@ negative (\code{n_err}) errors.}
 \item{two_sided}{Controls if both errors should be present in the converted \code{data.frame}/\code{tibble}.}
 
 \item{op}{Arithmetic functions/operators.}
+
+\item{.fn}{Mathematical function.}
 
 \item{.x}{\code{vec_arith*} argument.}
 }
