@@ -56,7 +56,8 @@ new_obs <- function(
 
     if (!vec_is_empty(obs))
         assert(((n_err[!nas] >= vec_cast(0, item_ptype)) %===% TRUE) && ((p_err[!nas] >= vec_cast(0, item_ptype)) %===% TRUE),
-            "Errors should be strictly non-negative.")
+            msg = "Errors should be strictly non-negative.",
+            subclass = "rastro_error")
 
     new_rcrd(list(obs = obs, n_err = n_err, p_err = p_err),
              item_frmt = item_frmt,
@@ -121,8 +122,32 @@ common_frmt <- function(x_frmt, y_frmt) {
     else
         frmt <- x_frmt %|% y_frmt
 
-    return (frmt)
+    return(frmt)
 }
+
+#' @rdname rastro_obs
+#' @export
+get_obs <- function(x, ...) UseMethod("get_obs")
+#' @rdname
+#' @export
+get_obs.default <- function(x, ...)
+    abort(glue_fmt_chr("`get_obs` is not supported for the type <{vec_ptype_full(x)}>"),
+          vec_c("rastro_invalid_arg", "rastro_error"))
+#' @rdname rastro_obs
+#' @export
+get_obs.rastro_obs <- function(x, ...) field(x, "obs")
+
+#' @rdname rastro_obs
+#' @export
+get_err <- function(x, ...) UseMethod("get_err")
+#' @rdname rastro_obs
+#' @export
+get_err.default <- function(x, ...)
+    abort(glue_fmt_chr("`get_err` is not supported for the type <{vec_ptype_full(x)}>"),
+          vec_c("rastro_invalid_arg", "rastro_error"))
+#' @rdname rastro_obs
+#' @export
+get_err.rastro_obs <- function(x, ...) 0.5 * (field(x, "n_err") + field(x, "p_err"))
 
 # METADATA
 #' @rdname rastro_obs

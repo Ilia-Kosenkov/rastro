@@ -4,6 +4,11 @@
 \alias{new_obs}
 \alias{na_obs}
 \alias{format.rastro_obs}
+\alias{get_obs}
+\alias{get_obs.rastro_obs}
+\alias{get_err}
+\alias{get_err.default}
+\alias{get_err.rastro_obs}
 \alias{vec_ptype_abbr.rastro_obs}
 \alias{vec_ptype_full.rastro_obs}
 \alias{vec_ptype2.rastro_obs}
@@ -63,6 +68,16 @@ na_obs(item_ptype)
   na_string = "NA_rastro_obs",
   ...
 )
+
+get_obs(x, ...)
+
+\method{get_obs}{rastro_obs}(x, ...)
+
+get_err(x, ...)
+
+\method{get_err}{default}(x, ...)
+
+\method{get_err}{rastro_obs}(x, ...)
 
 \method{vec_ptype_abbr}{rastro_obs}(x, ...)
 
