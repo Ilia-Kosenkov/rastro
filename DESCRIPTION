@@ -1,6 +1,6 @@
 Package: rastro
 Title: Astronomical tools
-Version: 0.0.16
+Version: 0.0.17
 Authors@R: 
     person(given = "Ilia",
            family = "Kosenkov",

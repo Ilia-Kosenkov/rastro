@@ -128,7 +128,7 @@ common_frmt <- function(x_frmt, y_frmt) {
 #' @rdname rastro_obs
 #' @export
 get_obs <- function(x, ...) UseMethod("get_obs")
-#' @rdname
+#' @rdname rastro_obs
 #' @export
 get_obs.default <- function(x, ...)
     abort(glue_fmt_chr("`get_obs` is not supported for the type <{vec_ptype_full(x)}>"),
