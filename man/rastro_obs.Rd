@@ -5,6 +5,7 @@
 \alias{na_obs}
 \alias{format.rastro_obs}
 \alias{get_obs}
+\alias{get_obs.default}
 \alias{get_obs.rastro_obs}
 \alias{get_err}
 \alias{get_err.default}
@@ -70,6 +71,8 @@ na_obs(item_ptype)
 )
 
 get_obs(x, ...)
+
+\method{get_obs}{default}(x, ...)
 
 \method{get_obs}{rastro_obs}(x, ...)
 
