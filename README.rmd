@@ -88,5 +88,8 @@ And, most importantly,
 sin(new_degr(30))
 cos(new_degr(60))
 ```
-
+Of course, this type can also be used with `rastro_obs` and `tibble`:
+```{r}
+tibble(x = new_obs(new_degr(0:5 * 60), new_degr(10)))
+```
 **Work is still in progress**
